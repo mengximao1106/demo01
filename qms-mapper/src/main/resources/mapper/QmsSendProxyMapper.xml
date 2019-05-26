@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.evergrande.qms.mapper.QmsSendProxyMapper">
+    <resultMap id="BaseResultMapMaterialInfo" type="com.evergrande.qms.vo.QmsMaterialInfoVO">
+        <result column="sample_plan_code" jdbcType="VARCHAR" property="samplePlanCode"  javaType="java.lang.String" />
+        <result column="row_num" jdbcType="INTEGER" property="rowNum"  javaType="java.lang.Integer" />
+        <result column="material_code" jdbcType="VARCHAR" property="materialCode"  javaType="java.lang.String" />
+        <result column="material_desc" jdbcType="VARCHAR" property="materialDesc"  javaType="java.lang.String" />
+        <result column="amount" jdbcType="DOUBLE" property="actualSampleAmount"  javaType="java.lang.Double" />
+        <result column="recheck_flag" jdbcType="VARCHAR" property="recheckFlag"  javaType="java.lang.String" />
+    </resultMap>
+
+    <sql id="Material_Info_Base_Column_List">
+        sp.sample_plan_code,
+        sd.row_num,
+        sd.material_code,
+        sd.material_desc,
+        case when sd.recheck_flag = '2' then sd.actual_sample_amount
+            when sd.recheck_flag = '1' then sd.actual_sample_amount_reserve
+            else 0 end amount,
+        sd.recheck_flag
+    </sql>
+
+    <select id="findMaterialInfo" resultMap="BaseResultMapMaterialInfo">
+            select
+                    <include refid="Material_Info_Base_Column_List"/>
+                    from qms_sample_plan sp, qms_sample_plan_detail sd
+                        where sp.sample_plan_code = sd.sample_plan_code
+                            and sp.data_status = '1'
+                            and sd.data_status = '1'
+                            and sp.is_delete = '0'
+                            and sp.sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+                            <if test="materialCode != null and materialCode != ''">
+                                and sd.material_code = #{materialCode,jdbcType=VARCHAR}
+                            </if>
+                            and sd.status = '6'
+    </select>
+
+    <select id="findMaterialInfoByVague" resultMap="BaseResultMapMaterialInfo">
+        <!-- 检测订单状态为已取消 -->
+        (select <include refid="Material_Info_Base_Column_List"/>
+                from qms_sample_plan sp,
+                    qms_sample_plan_detail sd,
+                    qms_inspection_order io,
+                    qms_order_material_detail_bind om
+                        where sp.sample_plan_code = sd.sample_plan_code
+                            and sp.data_status = '1'
+                            and sd.data_status = '1'
+                            and sp.is_delete = '0'
+                            and sd.id = om.sample_plan_detail_id
+                            and io.id = om.inspection_order_id
+                            and (select od.status
+                                    from qms_inspection_order od,
+                                        qms_order_material_detail_bind om
+                                            where od.id = om.inspection_order_id
+                                                and sd.id = om.sample_plan_detail_id
+                                                order by od.status asc, od.update_date desc limit 1) = '5'
+                            <if test="samplePlanCode != null and samplePlanCode != ''">
+                                and sp.sample_plan_code like concat('%',#{samplePlanCode,jdbcType=VARCHAR},'%')
+                            </if >
+                            <if test="materialCode != null and materialCode != ''">
+                                and sd.material_code like concat('%',#{materialCode,jdbcType=VARCHAR},'%')
+                            </if>
+                            <if test="materialDesc != null and materialDesc != ''">
+                                and sd.material_desc like concat('%',#{materialDesc,jdbcType=VARCHAR},'%')
+                            </if>
+                            <if test="loginName != null and loginName != ''">
+                                and (sp.receive_sample_user_id = #{loginName,jdbcType=VARCHAR} or sp.create_user = #{loginName,jdbcType=VARCHAR})
+                            </if>
+                            and sd.status = '6')
+        UNION
+        <!-- 未提交 -->
+        (select <include refid="Material_Info_Base_Column_List"/>
+                from qms_sample_plan sp,
+                    qms_sample_plan_detail sd
+                        where sp.sample_plan_code = sd.sample_plan_code
+                            and sp.data_status = '1'
+                            and sd.data_status = '1'
+                            and sp.is_delete = '0'
+                            and not exists (select 1 from qms_order_material_detail_bind om where om.sample_plan_detail_id = sd.id)
+                            <if test="samplePlanCode != null and samplePlanCode != ''">
+                                and sp.sample_plan_code like concat('%',#{samplePlanCode,jdbcType=VARCHAR},'%')
+                            </if >
+                            <if test="materialCode != null and materialCode != ''">
+                                and sd.material_code like concat('%',#{materialCode,jdbcType=VARCHAR},'%')
+                            </if>
+                            <if test="materialDesc != null and materialDesc != ''">
+                                and sd.material_desc like concat('%',#{materialDesc,jdbcType=VARCHAR},'%')
+                            </if>
+                            <if test="loginName != null and loginName != ''">
+                                and (sp.receive_sample_user_id = #{loginName,jdbcType=VARCHAR} or sp.create_user = #{loginName,jdbcType=VARCHAR})
+                            </if>
+                            and sd.status = '6')
+                            limit 200
+    </select>
+
+    <resultMap id="ItemAreaBaseResultMap" type="com.evergrande.qms.model.QmsItemAreaInfo">
+        <result column="sampleProvince" jdbcType="VARCHAR" property="sampleProvince"  javaType="java.lang.String" />
+        <result column="supplierProvince" jdbcType="VARCHAR" property="supplierProvince"  javaType="java.lang.String" />
+        <result column="inspection_code" jdbcType="VARCHAR" property="inspectionCode"  javaType="java.lang.String" />
+        <result column="standard_num" jdbcType="VARCHAR" property="standardNum"  javaType="java.lang.String" />
+        <result column="material_type_code" jdbcType="VARCHAR" property="materialTypeCode"  javaType="java.lang.String" />
+    </resultMap>
+
+    <sql id="Item_Area_Base_Column_List">
+        (select d.province from qms_project d where a.sample_address_id = d.project_code) sampleProvince,
+        (select e.province from qms_supplier e where a.supplier_code = e.supplier_code) supplierProvince,
+        c.inspection_code,
+        c.standard_num,
+        (select f.material_type_code from qms_material f where b.material_code = f.material_code) material_type_code
+    </sql>
+
+    <select id="findMaterialItem" parameterType="com.evergrande.qms.vo.QmsPlanMaterialVO" resultMap="ItemAreaBaseResultMap">
+        select
+            <include refid="Item_Area_Base_Column_List"/>
+                from qms_sample_plan a,
+                    qms_sample_plan_detail b,
+                    qms_sample_plan_item c
+                        where a.sample_plan_code = b.sample_plan_code
+                            and a.data_status = '1'
+                            and b.data_status = '1'
+                            and a.is_delete = '0'
+                            and a.sample_plan_code = c.sample_plan_code
+                            and b.id = c.sample_plan_detail_id
+                            and a.sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+                            and b.material_code = #{materialCode,jdbcType=VARCHAR}
+    </select>
+
+    <resultMap id="InstituteInfoBaseResultMap" type="com.evergrande.qms.model.QmsInstituteInfo">
+        <result column="institute_code" jdbcType="VARCHAR" property="instituteCode"  javaType="java.lang.String" />
+        <result column="institute_name" jdbcType="VARCHAR" property="instituteName"  javaType="java.lang.String" />
+        <result column="province" jdbcType="VARCHAR" property="instituteProvince"  javaType="java.lang.String" />
+        <result column="inspection_code" jdbcType="VARCHAR" property="inspectionCode"  javaType="java.lang.String" />
+        <result column="inspection_fee" jdbcType="DECIMAL" property="inspectionFee"  javaType="java.math.BigDecimal" />
+        <result column="standard_num" jdbcType="VARCHAR" property="standardNum"  javaType="java.lang.String" />
+        <result column="material_type_code" jdbcType="VARCHAR" property="materialTypeCode"  javaType="java.lang.String" />
+    </resultMap>
+
+    <sql id="Institute_Info_Base_Column_List">
+        d.institute_code,
+        (select c.institute_name
+                from qms_inspection_institute c
+                    where c.institute_code = d.institute_code
+                        and c.status = '0') institute_name,
+        (select g.dic_value
+            from qms_dictionary g,
+                 qms_inspection_institute c
+                    where g.dic_name = c.province
+                        and c.institute_code = d.institute_code
+                        and c.status = '0') province,
+        d.inspection_code,
+        d.inspection_fee,
+        d.material_type_code,
+        d.standard_num
+    </sql>
+
+    <select id="findInstituteInfo" parameterType="java.util.Map" resultMap="InstituteInfoBaseResultMap">
+        select <include refid="Institute_Info_Base_Column_List"/>
+                from qms_inspection_institute_item d
+                    where  d.status = '0'
+                        and d.standard_num = #{standardNum,jdbcType=VARCHAR}
+                        and d.material_type_code =#{materialTypeCode,jdbcType=VARCHAR}
+                        and d.inspection_code = #{inspectionCode,jdbcType=VARCHAR}
+                        <if test="instituteList != null">
+                            and d.institute_code not in
+                                <foreach collection="instituteList" index="index" item="item" open="(" separator="," close=")">
+                                    #{item,jdbcType=VARCHAR}
+                                </foreach>
+                        </if>
+    </select>
+
+    <select id="findRefuseInstitute" resultType="java.lang.String">
+        select
+            j.inspection_organization
+                from qms_sample_plan h,
+                    qms_sample_plan_detail i,
+                    qms_inspection_order j,
+                    qms_order_material_detail_bind k
+                        where h.sample_plan_code = i.sample_plan_code
+                            and h.data_status = '1'
+                            and i.data_status = '1'
+                            and h.is_delete = '0'
+                            and i.id = k.sample_plan_detail_id
+                            and j.id = k.inspection_order_id
+                            and j.status = '5'
+                            and h.sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+                            and i.material_code = #{materialCode,jdbcType=VARCHAR}
+    </select>
+
+    <resultMap id="BaseResultMapInspectionItem" type="com.evergrande.qms.vo.QmsInspectionItemVO">
+        <result column="inspection_code" jdbcType="VARCHAR" property="inspectionCode"  javaType="java.lang.String" />
+        <result column="inspection_item" jdbcType="VARCHAR" property="inspectionItem"  javaType="java.lang.String" />
+        <result column="standard_name" jdbcType="VARCHAR" property="inspectionStandard"  javaType="java.lang.String" />
+        <result column="inspection_fee" jdbcType="DECIMAL" property="inspectionFee"  javaType="java.math.BigDecimal" />
+        <result column="value_type" jdbcType="VARCHAR" property="valueType"  javaType="java.lang.String" />
+        <result column="standard_num" jdbcType="VARCHAR" property="standardNum"  javaType="java.lang.String" />
+        <result column="monitor_indicator_type" jdbcType="VARCHAR" property="monitorIndicatorType"  javaType="java.lang.String" />
+    </resultMap>
+
+    <sql id="Inspection_Item_Base_Column_List">
+        c.inspection_code,
+        c.inspection_item,
+        c.standard_name,
+        (select e.inspection_fee
+                from
+                    qms_inspection_institute d,
+                    qms_inspection_institute_item e,
+                    qms_inspection_item f,
+                    qms_material g
+                        where b.material_code = f.material_code
+                            and b.material_code = g.material_code
+                            and c.inspection_code = f.inspection_code
+                            and c.standard_num = f.standard_num
+                            and d.institute_code = e.institute_code
+                            and g.material_type_code = e.material_type_code
+                            and f.inspection_code = e.inspection_code
+                            and f.standard_num = e.standard_num
+                            and d.status = '0'
+                            and e.status = '0'
+                            and d.institute_code = #{instituteCode,jdbcType=VARCHAR}
+                            ) inspection_fee,
+        c.value_type,
+        c.standard_num,
+        c.monitor_indicator_type
+    </sql>
+
+    <sql id="InstituteCode_IsNull_Base_Column_List">
+        c.inspection_code,
+        c.inspection_item,
+        c.standard_name,
+        null inspection_fee,
+        c.value_type,
+        c.standard_num,
+        c.monitor_indicator_type
+    </sql>
+
+    <select id="findInspectionItemWithInstituteName" resultMap="BaseResultMapInspectionItem">
+        <choose>
+            <when test="instituteCode == null or instituteCode == ''">
+                select
+                <include refid="InstituteCode_IsNull_Base_Column_List"/>
+                    from qms_sample_plan a,
+                        qms_sample_plan_detail b,
+                        qms_sample_plan_item c
+                            where a.sample_plan_code = b.sample_plan_code
+                                and a.data_status = '1'
+                                and b.data_status = '1'
+                                and a.is_delete = '0'
+                                and a.sample_plan_code = c.sample_plan_code
+                                and b.id = c.sample_plan_detail_id
+                                and a.sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+                                and b.material_code = #{materialCode,jdbcType=VARCHAR}
+            </when>
+            <otherwise>
+                select
+                <include refid="Inspection_Item_Base_Column_List"/>
+                    from qms_sample_plan a,
+                        qms_sample_plan_detail b,
+                        qms_sample_plan_item c
+                            where a.sample_plan_code = b.sample_plan_code
+                                and a.data_status = '1'
+                                and b.data_status = '1'
+                                and a.is_delete = '0'
+                                and a.sample_plan_code = c.sample_plan_code
+                                and b.id = c.sample_plan_detail_id
+                                and a.sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+                                and b.material_code = #{materialCode,jdbcType=VARCHAR}
+            </otherwise>
+        </choose>
+    </select>
+
+    <insert id="saveInspectionOrder" parameterType="com.evergrande.qms.model.QmsInspectionOrder">
+        insert into qms_inspection_order
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test='id != null'> id, </if>
+            <if test='inspectionOrderNum != null'> inspection_order_num, </if>
+            <if test='inspectionOrganization != null'> inspection_organization, </if>
+            <if test='inspectionSendTime != null'> inspection_send_time, </if>
+            <if test='delegationCode != null'> delegation_code, </if>
+            <if test='predictCompleteDate != null'> predict_complete_date, </if>
+            <if test='status != null'> status, </if>
+            <if test='createUser != null'> create_user, </if>
+            <if test='createDate != null'> create_date, </if>
+            <if test='updateUser != null'> update_user, </if>
+            <if test='updateDate != null'> update_date, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >#{id,jdbcType=VARCHAR},</if>
+            <if test='inspectionOrderNum != null'> #{inspectionOrderNum,jdbcType=VARCHAR},</if>
+            <if test="inspectionOrganization != null" >#{inspectionOrganization,jdbcType=VARCHAR},</if>
+            <if test="inspectionSendTime != null" >#{inspectionSendTime,jdbcType=TIMESTAMP},</if>
+            <if test="delegationCode != null" >#{delegationCode,jdbcType=VARCHAR},</if>
+            <if test="predictCompleteDate != null" >#{predictCompleteDate,jdbcType=TIMESTAMP},</if>
+            <if test='status != null'> #{status,jdbcType=VARCHAR}, </if>
+            <if test="createUser != null" >#{createUser,jdbcType=VARCHAR},</if>
+            <if test="createDate != null" >#{createDate,jdbcType=TIMESTAMP},</if>
+            <if test="updateUser != null" > #{updateUser,jdbcType=VARCHAR},</if>
+            <if test="updateDate != null" >#{updateDate,jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <insert id="batchAddInspectionOrderItem" parameterType="java.util.List">
+        insert into qms_inspection_order_item(
+        id,
+        sample_plan_code,
+        sample_plan_detail_id,
+        inspection_order_id,
+        inspection_code,
+        inspection_item,
+        inspection_standard,
+        inspection_fee,
+        confirm_flag,
+        inspection_result,
+        inspection_evaluate,
+        no_inspection_reason,
+        value_type,
+        standard_num,
+        monitor_indicator_type,
+        create_user,
+        create_date,
+        update_user,
+        update_date
+        )values
+        <foreach collection ="list" item="item" index= "index" separator =",">
+            (
+            #{item.id,jdbcType=VARCHAR},
+            #{item.samplePlanCode,jdbcType=VARCHAR},
+            #{item.samplePlanDetailId,jdbcType=VARCHAR},
+            #{item.inspectionOrderId,jdbcType=VARCHAR},
+            #{item.inspectionCode,jdbcType=VARCHAR},
+            #{item.inspectionItem,jdbcType=VARCHAR},
+            #{item.inspectionStandard,jdbcType=VARCHAR},
+            #{item.inspectionFee,jdbcType=DECIMAL},
+            #{item.confirmFlag,jdbcType=VARCHAR},
+            #{item.inspectionResult,jdbcType=VARCHAR},
+            #{item.inspectionEvaluate,jdbcType=VARCHAR},
+            #{item.noInspectionReason,jdbcType=VARCHAR},
+            #{item.valueType,jdbcType=VARCHAR},
+            #{item.standardNum,jdbcType=VARCHAR},
+            #{item.monitorIndicatorType,jdbcType=VARCHAR},
+            #{item.createUser,jdbcType=VARCHAR},
+            #{item.createDate,jdbcType=TIMESTAMP},
+            #{item.updateUser,jdbcType=VARCHAR},
+            #{item.updateDate,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateInspectionOrderId" parameterType="com.evergrande.qms.model.QmsSamplePlanDetail">
+        update qms_sample_plan_detail set
+                                        <if test="recheckFlag == '2'.toString()">
+                                            actual_sample_amount = #{actualSampleAmount,jdbcType=DOUBLE},
+                                        </if>
+                                         <if test="recheckFlag == '1'.toString()">
+                                             actual_sample_amount_reserve = #{actualSampleAmount,jdbcType=DOUBLE},
+                                         </if>
+                                        update_user = #{updateUser,jdbcType=VARCHAR},
+                                        update_date = #{updateDate,jdbcType=TIMESTAMP}
+                                    where sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+                                        and material_code = #{materialCode,jdbcType=VARCHAR}
+    </update>
+
+    <select id="findSamplePlanDetailId" resultType="java.lang.String">
+        select sd.id
+            from qms_sample_plan sp,
+                qms_sample_plan_detail sd
+                    where sp.sample_plan_code = sd.sample_plan_code
+                        and sp.data_status = '1'
+                        and sd.data_status = '1'
+                        and sp.is_delete = '0'
+                        and sp.sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+                        and sd.material_code = #{materialCode,jdbcType=VARCHAR}
+    </select>
+
+    <resultMap id="OrderInfoBaseResultMap" type="com.evergrande.qms.vo.QmsSumbitProxyVO">
+        <result column="inspection_order_num" jdbcType="VARCHAR" property="inspectionOrderNum"  javaType="java.lang.String" />
+        <result column="inspection_send_time" jdbcType="TIMESTAMP" property="inspectionSendTime"  javaType="java.lang.String" />
+        <result column="inspection_organization" jdbcType="VARCHAR" property="instituteCode"  javaType="java.lang.String" />
+        <result column="institute_name" jdbcType="VARCHAR" property="instituteName"  javaType="java.lang.String" />
+        <result column="order_status" jdbcType="VARCHAR" property="orderStatus"  javaType="java.lang.String" />
+    </resultMap>
+
+    <sql id="Order_Info_Base_Column_List">
+        a.inspection_order_num,
+        DATE_FORMAT(a.inspection_send_time,'%Y-%m-%d') inspection_send_time,
+        a.inspection_organization,
+        (select b.institute_name
+            from qms_inspection_institute b
+                where a.inspection_organization = b.institute_code and b.status= '0') institute_name,
+        a.status order_status
+    </sql>
+
+    <select id="findOrderInfo" parameterType="java.lang.String" resultMap="OrderInfoBaseResultMap">
+        select
+            <include refid="Order_Info_Base_Column_List"/>
+            from qms_inspection_order a
+                where a.inspection_order_num = #{inspectionOrderNum,jdbcType=VARCHAR}
+    </select>
+
+    <sql id="Mateial_List_Base_Column_List">
+        a.sample_plan_code,
+        b.material_code,
+        b.material_desc,
+        b.row_num,
+        case when b.recheck_flag = '2' then b.actual_sample_amount
+            when b.recheck_flag = '1' then b.actual_sample_amount_reserve
+            else 0 end amount,
+        b.recheck_flag
+    </sql>
+
+    <select id="findMateialList" resultMap="BaseResultMapMaterialInfo">
+        select
+            <include refid="Mateial_List_Base_Column_List"/>
+            from qms_sample_plan a,
+                qms_sample_plan_detail b,
+                qms_inspection_order c,
+                qms_order_material_detail_bind d
+                    where a.sample_plan_code = b.sample_plan_code
+                        and a.data_status = '1'
+                        and b.data_status = '1'
+                        and a.is_delete = '0'
+                        and b.id = d.sample_plan_detail_id
+                        and c.id = d.inspection_order_id
+                        and c.inspection_order_num = #{inspectionOrderNum,jdbcType=VARCHAR}
+    </select>
+
+    <insert id="batchAddOrderMaterialDetailBind" parameterType="java.util.List">
+        insert into qms_order_material_detail_bind(
+        id,
+        inspection_order_id,
+        sample_plan_detail_id,
+        create_user,
+        create_date,
+        update_user,
+        update_date
+        )values
+        <foreach collection ="list" item="item" index= "index" separator =",">
+            (
+            #{item.id,jdbcType=VARCHAR},
+            #{item.inspectionOrderId,jdbcType=VARCHAR},
+            #{item.samplePlanDetailId,jdbcType=VARCHAR},
+            #{item.createUser,jdbcType=VARCHAR},
+            #{item.createDate,jdbcType=TIMESTAMP},
+            #{item.updateUser,jdbcType=VARCHAR},
+            #{item.updateDate,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
+    <select id="findIsRepeatSumibit" resultType="java.lang.Integer">
+        select count(1)
+            from qms_sample_plan_detail a,
+                qms_inspection_order b,
+                qms_order_material_detail_bind c
+                    where b.id = c.inspection_order_id
+                        and a.id = c.sample_plan_detail_id
+                        and b.status is not null
+                        and b.status in('1','2','3','4')
+                        and a.sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+                        and a.material_code = #{materialCode,jdbcType=VARCHAR}
+                            order by b.status asc, b.update_date desc limit 1
+    </select>
+
+</mapper>

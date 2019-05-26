@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.evergrande.qms.mapper.UserMapper">
+    <cache eviction="LRU" flushInterval="60000" readOnly="true"/>
+    <resultMap id="BaseResultMap" type="com.evergrande.qms.model.User">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="login_name" jdbcType="VARCHAR" property="loginName" />
+        <result column="password" jdbcType="VARCHAR" property="password" />
+        <result column="real_name" jdbcType="VARCHAR" property="realName" />
+        <result column="dept_id" jdbcType="VARCHAR" property="deptId" />
+        <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+        <result column="telephone" jdbcType="VARCHAR" property="telephone" />
+        <result column="email" jdbcType="VARCHAR" property="email" />
+        <result column="status" jdbcType="VARCHAR" property="status" />
+        <result column="create_user" jdbcType="TIMESTAMP" property="createUser" />
+        <result column="create_date" jdbcType="VARCHAR" property="createDate" />
+        <result column="update_user" jdbcType="TIMESTAMP" property="updateUser" />
+        <result column="update_date" jdbcType="VARCHAR" property="updateDate" />
+    </resultMap>
+    <resultMap id="ResultMap" type="com.evergrande.qms.vo.UserVo">
+        <result column="user_id" jdbcType="VARCHAR" property="userId" />
+        <result column="user_name" jdbcType="VARCHAR" property="userName" />
+        <result column="login_name" jdbcType="VARCHAR" property="loginName" />
+        <result column="email" jdbcType="VARCHAR" property="email" />
+        <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+        <result column="dept_id" jdbcType="VARCHAR" property="deptId" />
+        <result column="dept_name" jdbcType="VARCHAR" property="deptName" />
+    </resultMap>
+    <!--抽取公共字段-->
+    <sql id="Base_Column_List">
+        id, login_name, password, real_name,dept_id, mobile,telephone, email, status,create_user,create_date,update_user,update_date
+    </sql>
+
+    <select id="findByDeptId" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from idm_sync_user
+        where dept_id = #{deptId,jdbcType=VARCHAR}
+    </select>
+    <select id="findAllList" resultMap="ResultMap" parameterType="java.lang.String">
+        select
+        t.id as user_id ,t.real_name as user_name,t.login_name,t.mobile ,t.email,t1.id as dept_id, t1.short_name as dept_name
+        from idm_sync_user t LEFT JOIN  idm_sync_dept t1 ON t.dept_id = t1.id
+    </select>
+    <select id="findUserNoExistList" resultMap="ResultMap" parameterType="java.lang.String">
+        select
+        t.id as user_id ,t.real_name as user_name,t.login_name,t.mobile ,t.email,t1.id as dept_id, t1.short_name as dept_name
+        from idm_sync_user t LEFT JOIN  idm_sync_dept t1 ON t.dept_id = t1.id LEFT JOIN qms_user t2 ON  t.login_name = t2.login_name
+        where t2.id is null
+        ORDER BY t.login_name
+    </select>
+    <select id="findByLoginName" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from idm_sync_user
+        where login_name = #{loginName,jdbcType=VARCHAR}
+    </select>
+    <select id="findById" resultMap="ResultMap"  parameterType="java.lang.String">
+        select
+        t.id as user_id ,t.real_name as user_name,t.mobile ,t1.id as dept_id, t1.short_name as dept_name
+        from idm_sync_user t LEFT JOIN  idm_sync_dept t1 ON t.dept_id = t1.id
+        where t.id = #{userId,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getUserAndDeptByLoginName" resultType="java.util.Map">
+        SELECT
+            su.real_name,
+            su.mobile,
+            su.dept_id,
+            sd.`name`,
+            sd.short_name,
+            sd.type
+        FROM
+            idm_sync_user su,
+            idm_sync_dept sd
+        WHERE
+            su.dept_id = sd.id
+            AND su.login_name = #{loginName}
+    </select>
+
+
+</mapper>

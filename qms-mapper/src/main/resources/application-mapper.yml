@@ -1,0 +1,55 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    username: ${mysql.username}
+    password: ${mysql.password}
+    url: jdbc:mysql://${mysql.host}:${mysql.port}/${mysql.database}?useUnicode=true&characterEncoding=UTF8&allowMultiQueries=true
+    # 初始化大小，最小，最大
+    initial-size: 5
+    min-idle: 5
+    # 配置获取连接等待超时的时间
+    max-wait: 60000
+    max-active: 50
+    # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+    time-between-eviction-runs-millis: 6000
+    validation-query: select 1
+    test-on-borrow: false
+    test-while-idle: true
+    test-on-return: false
+    pool-prepared-statements: true
+    max-pool-prepared-statement-per-connection-size: 20
+    # 配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+    filter: stat,wall,slf4j
+    # 通过connectProperties属性来打开mergeSql功能；慢SQL记录
+    connection-properties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+    #一个连接在池中最小生存的时间(ms)
+    min-evictable-idle-time-millis: 35000
+
+#mynatis配置
+mybatis:
+  type-aliases-package: com.evergrande.qms.model
+  #mapper加载路径
+  mapper-locations: classpath:mapper/*Mapper.xml
+  configuration:
+    # 配置的缓存的全局开关
+    cache-enabled: true
+    # 延迟加载
+    lazy-loading-enabled: true
+    jdbc-type-for-null: null
+    log-impl: org.apache.ibatis.logging.log4j2.Log4j2Impl
+    # true 当查询数据为空时字段返回为null，false 查询数据为空时，字段将被隐藏
+    call-setters-on-nulls: true
+# pagehelper分页插件
+pagehelper:
+  helper-dialect: mysql
+  offset-as-page-num: true
+  reasonable: false
+  row-bounds-with-count: true
+  page-size-zero: true
+  support-methods-arguments: false
+  params: count=countSql
+mapper:
+  mappers:
+    - com.evergrande.qms.util.MyMapper
+  not-empty: false
+  identity: MYSQL

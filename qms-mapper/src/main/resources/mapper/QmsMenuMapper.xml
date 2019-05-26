@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.evergrande.qms.mapper.QmsMenuMapper" >
+  <resultMap id="BaseResultMap" type="com.evergrande.qms.model.QmsMenu" >
+      <id column="id" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <result column="menu_name" property="menuName" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <result column="menu_url" property="menuUrl" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <result column="parent_id" property="parentId" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <result column="type" property="type" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <result column="menu_order" property="menuOrder" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <result column="status" property="status" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <result column="create_user" property="createUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <result column="create_date" property="createDate" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <result column="update_user" property="updateUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, menu_name, menu_url, parent_id, type, menu_order, status, create_user, create_date,
+    update_user, update_date
+  </sql>
+
+  <sql id="Menu_Column_List" >
+    t1.id, t1.menu_name, t1.menu_url, t1.parent_id, t1.type, t1.menu_order, t1.status, t1.create_user, t1.create_date,
+    t1.update_user, t1.update_date
+  </sql>
+
+  <select id="findByUserId" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    SELECT
+    <include refid="Menu_Column_List" />
+    FROM qms_user_menu t LEFT JOIN  qms_menu t1 ON t.menu_id = t1.id
+    where t.user_id = #{userId,jdbcType=VARCHAR}
+    <if test="type != null" >
+      and t1.type = #{type,jdbcType=VARCHAR}
+    </if>
+    ORDER BY  t1.menu_order
+  </select>
+
+  <select id="findByRoleId" resultMap="BaseResultMap" parameterType="java.util.Map" >
+    SELECT
+    <include refid="Menu_Column_List" />
+    FROM qms_role_menu t LEFT JOIN  qms_menu t1 ON t.menu_id = t1.id
+    where t.role_id = #{roleId,jdbcType=VARCHAR}
+    <if test="type != null" >
+      and t1.type = #{type,jdbcType=VARCHAR}
+    </if>
+    ORDER BY  t1.menu_order
+  </select>
+
+  <select id="get" resultMap="BaseResultMap" parameterType="java.lang.String" >
+    select
+    <include refid="Base_Column_List" />
+    from qms_menu
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="delete" parameterType="java.lang.String" >
+    delete from qms_menu
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <insert id="insert" parameterType="com.evergrande.qms.model.QmsMenu" >
+    insert into qms_menu (id, menu_name, menu_url,
+      parent_id, type, menu_order,
+      status, create_user, create_date,
+      update_user, update_date)
+    values (#{id,jdbcType=VARCHAR}, #{menuName,jdbcType=VARCHAR}, #{menuUrl,jdbcType=VARCHAR},
+      #{parentId,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, #{menuOrder,jdbcType=INTEGER},
+      #{status,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR}, #{createDate,jdbcType=TIMESTAMP},
+      #{updateUser,jdbcType=VARCHAR}, #{updateDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="add" parameterType="com.evergrande.qms.model.QmsMenu" >
+    insert into qms_menu
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="menuName != null" >
+        menu_name,
+      </if>
+      <if test="menuUrl != null" >
+        menu_url,
+      </if>
+      <if test="parentId != null" >
+        parent_id,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="menuOrder != null" >
+        menu_order,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+      <if test="updateUser != null" >
+        update_user,
+      </if>
+      <if test="updateDate != null" >
+        update_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="menuName != null" >
+        #{menuName,jdbcType=VARCHAR},
+      </if>
+      <if test="menuUrl != null" >
+        #{menuUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null" >
+        #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=INTEGER},
+      </if>
+      <if test="menuOrder != null" >
+        #{menuOrder,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUser != null" >
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="update" parameterType="com.evergrande.qms.model.QmsMenu" >
+    update qms_menu
+    <set >
+      <if test="menuName != null" >
+        menu_name = #{menuName,jdbcType=VARCHAR},
+      </if>
+      <if test="menuUrl != null" >
+        menu_url = #{menuUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null" >
+        parent_id = #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null" >
+        type = #{type,jdbcType=INTEGER},
+      </if>
+      <if test="menuOrder != null" >
+        menu_order = #{menuOrder,jdbcType=INTEGER},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=INTEGER},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUser != null" >
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateDate != null" >
+        update_date = #{updateDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.evergrande.qms.model.QmsMenu" >
+    update qms_menu
+    set menu_name = #{menuName,jdbcType=VARCHAR},
+      menu_url = #{menuUrl,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=VARCHAR},
+      type = #{type,jdbcType=INTEGER},
+      menu_order = #{menuOrder,jdbcType=INTEGER},
+      status = #{status,jdbcType=INTEGER},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_date = #{createDate,jdbcType=TIMESTAMP},
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      update_date = #{updateDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

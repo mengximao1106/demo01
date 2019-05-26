@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.evergrande.qms.mapper.ProjectMapper">
+    <resultMap id="BaseResultMap" type="com.evergrande.qms.model.Project">
+        <id column="id" jdbcType="VARCHAR" property="id"  javaType="java.lang.String" />
+        <result column="project_code" jdbcType="VARCHAR" property="projectCode"  javaType="java.lang.String" />
+        <result column="project_name" jdbcType="VARCHAR" property="projectName"  javaType="java.lang.String" />
+        <result column="building_item_code" jdbcType="VARCHAR" property="buildingItemCode"  javaType="java.lang.String" />
+        <result column="building_item_name" jdbcType="VARCHAR" property="buildingItemName"  javaType="java.lang.String" />
+        <result column="area_company_code   " jdbcType="VARCHAR" property="areaCompanyCode"  javaType="java.lang.String" />
+        <result column="area_company_name" jdbcType="VARCHAR" property="areaCompanyName"  javaType="java.lang.String" />
+        <result column="factory" jdbcType="VARCHAR" property="factory"  javaType="java.lang.String" />
+        <result column="project_company" jdbcType="VARCHAR" property="projectCompany"  javaType="java.lang.String" />
+        <result column="province" jdbcType="VARCHAR" property="province"  javaType="java.lang.String" />
+        <result column="city" jdbcType="VARCHAR" property="city"  javaType="java.lang.String" />
+        <result column="detailed_address" jdbcType="VARCHAR" property="detailedAddress"  javaType="java.lang.String" />
+        <result column="collector" jdbcType="VARCHAR" property="collector"  javaType="java.lang.String" />
+        <result column="crud_type" jdbcType="VARCHAR" property="crudType"  javaType="java.lang.String" />
+        <result column="create_date" jdbcType="TIMESTAMP" property="createDate"  javaType="java.util.Date" />
+        <result column="update_date" jdbcType="TIMESTAMP" property="updateDate"  javaType="java.util.Date" />
+    </resultMap>
+    <sql id="base_column_list">
+        id,project_code,project_name,building_item_code,building_item_name,
+        area_company_code,area_company_name,factory,project_company,province,
+        city,detailed_address,collector,crud_type,create_date,update_date
+    </sql>
+    <select id="findAllList" resultMap="BaseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_project
+        <where>
+            <if test="projectCode!=null and projectCode!=''">
+                and project_code like concat('%', #{projectCode,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="projectName!=null and projectName!=''">
+                and project_name like concat('%', #{projectName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="collector!=null and collector!=''">
+                and collector like concat('%', #{collector,jdbcType=VARCHAR},'%')
+            </if>
+        </where>
+        LIMIT 500
+    </select>
+
+    <!-- 获取表记录数量 -->
+    <select id="getTableSize" resultType="java.lang.Integer">
+        select count(0) from qms_project
+    </select>
+
+    <select id="searchByProjectCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_project
+        where project_code = #{projectCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="searchProjectLikeCode" parameterType="java.lang.String"  resultMap="BaseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_project
+        <where>
+            <if test="projectCode!=null and projectCode!=''">
+                and project_code like concat('%', #{projectCode,jdbcType=VARCHAR},'%')
+            </if>
+        </where>
+        LIMIT 15
+    </select>
+
+    <select id="searchProjectLikeName" resultMap="BaseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_project
+        <where>
+            <if test="projectName!=null and projectName!=''">
+                and project_name like concat('%', #{projectName,jdbcType=VARCHAR},'%')
+            </if>
+        </where>
+        LIMIT 15
+    </select>
+
+    <!-- 新增项目数据 -->
+    <insert id="batchAddProject" parameterType="java.util.List">
+        insert into qms_project(<include refid="base_column_list"/>)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id,jdbcType=VARCHAR},
+            #{item.projectCode,jdbcType=VARCHAR},
+            #{item.projectName,jdbcType=VARCHAR},
+            #{item.buildingItemCode,jdbcType=VARCHAR},
+            #{item.buildingItemName,jdbcType=VARCHAR},
+            #{item.areaCompanyCode,jdbcType=VARCHAR},
+            #{item.areaCompanyName,jdbcType=VARCHAR},
+            #{item.factory,jdbcType=VARCHAR},
+            #{item.projectCompany,jdbcType=VARCHAR},
+            #{item.province,jdbcType=VARCHAR},
+            #{item.city,jdbcType=VARCHAR},
+            #{item.detailedAddress,jdbcType=VARCHAR},
+            #{item.collector,jdbcType=VARCHAR},
+            #{item.crudType,jdbcType=VARCHAR},
+            #{item.createDate,jdbcType=TIMESTAMP},
+            #{item.updateDate,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 修改项目数据 -->
+    <update id="batchUpdateProject" parameterType="java.util.List">
+        update qms_project
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="project_name=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.projectName !=null">
+                        when id=#{item.id} then #{item.projectName,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="building_item_code=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.buildingItemCode !=null">
+                        when id=#{item.id} then #{item.buildingItemCode,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="building_item_name=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.buildingItemName !=null">
+                        when id=#{item.id} then #{item.buildingItemName,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="area_company_code=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.areaCompanyCode !=null">
+                        when id=#{item.id} then #{item.areaCompanyCode,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="area_company_name=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.areaCompanyName !=null">
+                        when id=#{item.id} then #{item.areaCompanyName,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="factory=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.factory !=null">
+                        when id=#{item.id} then #{item.factory,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="project_company=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.projectCompany !=null">
+                        when id=#{item.id} then #{item.projectCompany,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="province=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.province !=null">
+                        when id=#{item.id} then #{item.province,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="city=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.city !=null">
+                        when id=#{item.id} then #{item.city,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="detailed_address=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.detailedAddress !=null">
+                        when id=#{item.id} then #{item.detailedAddress,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="collector=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.collector !=null">
+                        when id=#{item.id} then #{item.collector,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="crud_type=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.crudType !=null">
+                        when id=#{item.id} then #{item.crudType,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_date=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateDate !=null">
+                        when id=#{item.id} then #{item.updateDate,jdbcType=TIMESTAMP}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <!-- 逻辑删除项目数据 -->
+    <update id="batchDeleteProject" parameterType="java.util.List">
+        update qms_project
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="crud_type=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.crudType !=null">
+                        when project_code=#{item.projectCode} then #{item.crudType,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_date=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateDate !=null">
+                        when project_code=#{item.projectCode} then #{item.updateDate,jdbcType=TIMESTAMP}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where project_code in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.projectCode,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+</mapper>
+
+

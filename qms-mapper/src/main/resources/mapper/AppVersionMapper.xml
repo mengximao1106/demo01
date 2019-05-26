@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.evergrande.qms.mapper.AppVersionMapper">
+    <resultMap id="AppMap" type="com.evergrande.qms.model.AppVersion">
+        <id property="id" column="id" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="apkCode" column="apk_code" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="apkName" column="apk_name" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="apkDesc" column="apk_desc" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="apkDownLoad" column="apk_download" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="updateType" column="update_type" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="deleteDb" column="delete_db" jdbcType="TINYINT" javaType="java.lang.Boolean"/>
+        <result property="apkSize" column="apk_size" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="platform" column="platform" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="createUser" column="create_user" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="createDate" column="create_date" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+        <result property="updateUser" column="update_user" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="updateDate" column="update_date" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+    </resultMap>
+
+    <resultMap id="AppMapVO" type="com.evergrande.qms.vo.AppVersionVO">
+        <result property="apkCode" column="apk_code" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="apkName" column="apk_name" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="apkFilename" column="apk_filename" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="qrCode" column="qr_code" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="apkType" column="apk_type" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="deployDb" column="deploy_db" jdbcType="TINYINT" javaType="java.lang.Boolean"/>
+        <result property="isDeployDb" column="is_deploy_db" jdbcType="TINYINT" javaType="java.lang.Boolean"/>
+        <result property="deleteDb" column="delete_db" jdbcType="TINYINT" javaType="java.lang.Boolean"/>
+        <result property="deployDate" column="deploy_date" jdbcType="TIMESTAMP" javaType="java.util.Date"/>
+        <result property="apkDesc" column="apk_desc" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="apkDownLoad" column="apk_download" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="updateType" column="update_type" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="apkSize" column="apk_size" jdbcType="VARCHAR" javaType="java.lang.String"/>
+        <result property="platform" column="platform" jdbcType="VARCHAR" javaType="java.lang.String"/>
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        id,
+        apk_code,
+        apk_name,
+        apk_desc,
+        apk_download,
+        update_type,
+        delete_db,
+        apk_size,
+        platform,
+        create_user,
+        create_date,
+        update_user,
+        update_date
+    </sql>
+    <sql id="Base_Column_ListVO">
+        id,
+        apk_code,
+        apk_name,
+        apk_filename,
+        apk_desc,
+        apk_type,
+        qr_code,
+        apk_download,
+        update_type,
+        delete_db,
+        deploy_db,
+        deploy_date,
+        apk_size,
+        platform,
+        create_user,
+        create_date,
+        update_user,
+        update_date,
+        is_deploy_db
+    </sql>
+    <!--添加-->
+    <insert id="add" parameterType="com.evergrande.qms.model.AppVersion">
+        insert into qms_app_version(<include refid="Base_Column_List"/>)
+        values
+        (#{id,jdbcType=VARCHAR},#{apkCode,jdbcType=VARCHAR},#{apkName,jdbcType=VARCHAR},
+        #{apkDesc,jdbcType=VARCHAR},#{apkDownLoad,jdbcType=VARCHAR},#{updateType,jdbcType=VARCHAR},
+        #{deleteDb,jdbcType=TINYINT},#{apkSize,jdbcType=VARCHAR},#{platform,jdbcType=VARCHAR},
+        #{createUser,jdbcType=VARCHAR},#{createDate,jdbcType=TIMESTAMP},#{updateUser,jdbcType=VARCHAR},
+        #{updateDate,jdbcType=TIMESTAMP})
+    </insert>
+
+
+    <!--修改-->
+    <update id="updateByAppVersionId" parameterType="com.evergrande.qms.vo.AppVersionVO">
+        update qms_app_version set
+        update_date=#{updateDate,jdbcType=TIMESTAMP},
+        deploy_date=#{deployDate,jdbcType=TIMESTAMP},
+        deploy_db=#{deployDb,jdbcType=TINYINT},
+        is_deploy_db=#{isDeployDb,jdbcType=TINYINT}
+        where id=#{id,jdbcType=VARCHAR}
+        and apk_type=#{apkType}
+    </update>
+    <!--修改部署状态-->
+    <update id="updateApk" parameterType="com.evergrande.qms.vo.AppVersionVO">
+        update qms_app_version set
+        update_date=#{updateDate,jdbcType=TIMESTAMP},
+        deploy_db=#{deployDb,jdbcType=TINYINT}
+        where deploy_db=true
+        and apk_type=#{apkType}
+    </update>
+
+    <delete id="deleteByAppVersionId" parameterType="com.evergrande.qms.model.AppVersion">
+        delete from qms_app_version where id =#{id,jdbcType=VARCHAR}
+    </delete>
+
+    <select id="getByAppVersionId" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(1) from qms_app_version
+        where id = #{id,jdbcType=VARCHAR}
+    </select>
+    <select id="getByDeployDb" resultMap="AppMapVO" parameterType="java.lang.String">
+        SELECT
+        apk_code,
+        apk_name,
+        apk_desc,
+        apk_download,
+        update_type,
+        apk_size,
+        delete_db,
+        platform
+        from qms_app_version
+        where deploy_db=1
+        and apk_type=#{apkType}
+    </select>
+    <!--根据APK类型查询-->
+    <select id="getByApkType" resultMap="AppMapVO" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_ListVO"/>
+        from qms_app_version
+        where apk_type=#{apkType,jdbcType=VARCHAR}
+        order by create_date desc
+    </select>
+    <!--新增PC端-->
+    <insert id="apkTypeAdd" parameterType="com.evergrande.qms.vo.AppVersionVO">
+        insert into qms_app_version(<include refid="Base_Column_ListVO"/>)
+        values
+        (#{id,jdbcType=VARCHAR},#{apkCode,jdbcType=VARCHAR},#{apkName,jdbcType=VARCHAR},
+        #{apkFilename,jdbcType=VARCHAR},
+        #{apkDesc,jdbcType=VARCHAR},
+        #{apkType,jdbcType=TINYINT},
+        #{qrCode,jdbcType=VARCHAR},#{apkDownLoad,jdbcType=VARCHAR},#{updateType,jdbcType=VARCHAR},
+        #{deleteDb,jdbcType=TINYINT},#{deployDb,jdbcType=TINYINT},#{deployDate,jdbcType=TIMESTAMP},
+        #{apkSize,jdbcType=VARCHAR},#{platform,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR},
+        #{createDate,jdbcType=TIMESTAMP},#{updateUser,jdbcType=VARCHAR},
+        #{updateDate,jdbcType=TIMESTAMP},#{isDeployDb,jdbcType=TINYINT})
+    </insert>
+
+    <!--查询全部数据-->
+    <select id="queryApk" resultMap="AppMapVO">
+        select
+        <include refid="Base_Column_ListVO"/>
+        from qms_app_version
+    </select>
+
+    <!--根据机型修改是否允许部署状态-->
+    <update id="updateIsDeployDb" parameterType="com.evergrande.qms.vo.AppVersionVO">
+        update qms_app_version set
+        is_deploy_db=#{isDeployDb,jdbcType=TINYINT}
+        where apk_type=#{apkType}
+    </update>
+
+</mapper>
+
+

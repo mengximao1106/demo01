@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.evergrande.qms.mapper.QmsSendPackOffMapper">
+
+    <update id="updateMaterailStatus" parameterType="com.evergrande.qms.model.QmsSamplePlanDetail">
+        update qms_sample_plan_detail set status = #{status,jdbcType=VARCHAR},
+                                        update_user = #{updateUser,jdbcType=VARCHAR},
+                                        <if test="sendOffTime != null">
+                                            send_off_time = #{sendOffTime,jdbcType=TIMESTAMP},
+                                        </if>
+                                        <if test="revisionRemarks != null and revisionRemarks != ''">
+                                            revision_remarks = #{revisionRemarks,jdbcType=VARCHAR},
+                                        </if>
+                                        update_date = #{updateDate,jdbcType=TIMESTAMP}
+                                            where material_code = #{materialCode,jdbcType=VARCHAR}
+                                                and sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateReviewStatus" parameterType="com.evergrande.qms.model.QmsSamplePlanDetail">
+        update qms_sample_plan_detail set
+                                        <if test="beforeReviewResult != null and beforeReviewResult != ''">
+                                            before_review_result = #{beforeReviewResult,jdbcType=VARCHAR},
+                                        </if>
+                                        <if test="determineReason != null and determineReason != ''">
+                                            determine_reason = #{determineReason,jdbcType=VARCHAR},
+                                        </if>
+                                        review_status = #{reviewStatus,jdbcType=VARCHAR},
+                                        update_user = #{updateUser,jdbcType=VARCHAR},
+                                        update_date = #{updateDate,jdbcType=TIMESTAMP}
+                                            where material_code = #{materialCode,jdbcType=VARCHAR}
+                                                and sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+    </update>
+
+    <select id="findMaterialMinStatusByPlanCode" parameterType="java.lang.String" resultType="java.lang.String">
+        select  min(cast(status as SIGNED INTEGER))
+            from qms_sample_plan_detail
+                where sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+                    and data_status = '1'
+    </select>
+
+    <update id="updateQmsSamplePlanStatus" parameterType="com.evergrande.qms.model.QmsSamplePlan">
+        update qms_sample_plan set status = #{status,jdbcType=VARCHAR},
+                                update_user = #{updateUser,jdbcType=VARCHAR},
+                                update_date = #{updateDate,jdbcType=TIMESTAMP}
+                                    where sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+    </update>
+
+    <resultMap id="MaterialInfoBaseResultMap" type="com.evergrande.qms.model.QmsSamplePlanHistoryState">
+        <result column="sample_plan_code" jdbcType="VARCHAR" property="samplePlanCode"  javaType="java.lang.String" />
+        <result column="material_code" jdbcType="VARCHAR" property="materialCode"  javaType="java.lang.String" />
+        <result column="row_num" jdbcType="INTEGER" property="rowNum"  javaType="java.lang.Integer" />
+        <result column="material_type" jdbcType="VARCHAR" property="materialType"  javaType="java.lang.String" />
+        <result column="material_desc" jdbcType="VARCHAR" property="materialDesc"  javaType="java.lang.String" />
+    </resultMap>
+
+    <sql id="Material_Info_Base_Column_List">
+        sample_plan_code,
+        material_code,
+        row_num,
+        material_type,
+        material_desc
+    </sql>
+
+    <select id="findMaterialDetailInfo" resultMap="MaterialInfoBaseResultMap">
+        select
+        <include refid="Material_Info_Base_Column_List"/>
+            from qms_sample_plan_detail
+                where sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+                    and material_code =  #{materialCode,jdbcType=VARCHAR}
+                    and data_status = '1'
+    </select>
+
+    <update id="updateOrderStatus" parameterType="com.evergrande.qms.model.QmsInspectionOrder">
+        update qms_inspection_order set status = #{status,jdbcType=VARCHAR},
+                                        update_user = #{updateUser,jdbcType=VARCHAR},
+                                        update_date = #{updateDate,jdbcType=TIMESTAMP}
+                                            where inspection_order_num = #{inspectionOrderNum,jdbcType=VARCHAR}
+    </update>
+
+    <resultMap id="MaterialStatusBaseResultMap" type="com.evergrande.qms.model.QmsSamplePlanDetail">
+        <result column="status" jdbcType="VARCHAR" property="status"  javaType="java.lang.String" />
+        <result column="review_status" jdbcType="VARCHAR" property="reviewStatus"  javaType="java.lang.String" />
+        <result column="row_num" jdbcType="VARCHAR" property="rowNum"  javaType="java.lang.Integer" />
+    </resultMap>
+
+    <sql id="Material_Status_Base_Column_List">
+        status,
+        review_status,
+        row_num
+    </sql>
+
+    <select id="findMaterialStatus" resultMap="MaterialStatusBaseResultMap">
+        select
+            <include refid="Material_Status_Base_Column_List"/>
+                from qms_sample_plan_detail
+                    where sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+                    and material_code =  #{materialCode,jdbcType=VARCHAR}
+                    and data_status = '1'
+    </select>
+
+</mapper>

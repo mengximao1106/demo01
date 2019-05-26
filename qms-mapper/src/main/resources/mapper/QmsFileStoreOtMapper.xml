@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.evergrande.qms.mapper.QmsFileStoreOtMapper">
+    <resultMap id="UploadInfoBaseResultMap" type="com.evergrande.qms.vo.QmsUploadOtInfoVO">
+        <result column="return_id" jdbcType="VARCHAR" property="id"  javaType="java.lang.String" />
+        <result column="file_size" jdbcType="BIGINT" property="size"  javaType="java.lang.Long" />
+        <result column="file_name" jdbcType="VARCHAR" property="fileName"  javaType="java.lang.String" />
+    </resultMap>
+
+    <sql id="Upload_Info_Base_Column_List">
+        oa.return_id,
+        oa.file_size,
+        oa.file_name
+    </sql>
+
+    <select id="findProxyOrReplyDownloadParam" resultMap="UploadInfoBaseResultMap">
+        select
+            <include refid="Upload_Info_Base_Column_List"/>
+            from qms_inspection_order io,
+                qms_ot_attachment oa,
+                qms_ot_attachment_bind ob
+                    where oa.id = ob.ot_attachment_id
+                        and ob.relevance_id = io.id
+                        and oa.status ='Y'
+                        and ob.status = 'Y'
+                        and ob.type = #{type,jdbcType=VARCHAR}
+                        and io.inspection_order_num = #{inspectionOrderNum,jdbcType=VARCHAR}
+    </select>
+
+    <select id="findReportDownloadParam" resultMap="UploadInfoBaseResultMap">
+        select
+        <include refid="Upload_Info_Base_Column_List"/>
+        from qms_sample_plan sp,
+            qms_sample_plan_detail sd,
+            qms_ot_attachment oa,
+            qms_ot_attachment_bind ob
+                where sp.sample_plan_code = sd.sample_plan_code
+                    and sp.data_status = '1'
+                    and sd.data_status = '1'
+                    and oa.id = ob.ot_attachment_id
+                    and ob.relevance_id = sd.id
+                    and oa.status ='Y'
+                    and ob.status = 'Y'
+                    and ob.type = #{type,jdbcType=VARCHAR}
+                    and sp.sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+                    and sd.material_code = #{materialCode,jdbcType=VARCHAR}
+    </select>
+    <resultMap id="SampleRecordBaseResultMap" type="com.evergrande.qms.vo.QmsOssAttachmentVO">
+        <result column="oss_key" jdbcType="VARCHAR" property="ossKey"  javaType="java.lang.String" />
+        <result column="oss_url" jdbcType="VARCHAR" property="ossUrl"  javaType="java.lang.String" />
+        <result column="file_size" jdbcType="BIGINT" property="fileSize"  javaType="java.lang.Long" />
+        <result column="original_file_name" jdbcType="VARCHAR" property="originalFileName"  javaType="java.lang.String" />
+    </resultMap>
+
+    <sql id="Sample_Record_Base_Column_List">
+        oa.oss_key,
+        oa.oss_url,
+        oa.file_size,
+        oa.original_file_name
+    </sql>
+
+    <select id="findSampleRecordDownloadUrl" parameterType="java.util.Map" resultMap="SampleRecordBaseResultMap">
+        select <include refid="Sample_Record_Base_Column_List"/>
+                from qms_sample_plan sp,
+                    qms_sample_plan_detail sd,
+                    qms_oss_attachment oa,
+                    qms_oss_attachment_bind ob
+                        where sp.sample_plan_code = sd.sample_plan_code
+                            and sp.data_status = '1'
+                            and sd.data_status = '1'
+                            and oa.id = ob.oss_attachment_id
+                            and ob.relevance_id = sd.id
+                            and oa.status = 'Y'
+                            and ob.status = 'Y'
+                            and oa.oss_key IS NOT NULL
+                            and ob.type = #{type,jdbcType=VARCHAR}
+                            and sp.sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+                            and sd.material_code = #{materialCode,jdbcType=VARCHAR}
+    </select>
+
+    <insert id="saveOtAttachment" parameterType="com.evergrande.qms.model.QmsOtAttachment">
+        insert into qms_ot_attachment
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test='id != null'> id, </if>
+            <if test='returnId != null'> return_id, </if>
+            <if test='fileName != null'> file_name, </if>
+            <if test='fileSize != null'> file_size, </if>
+            <if test='status != null'> status, </if>
+            <if test='createUser != null'> create_user, </if>
+            <if test='createDate != null'> create_date, </if>
+            <if test='updateUser != null'> update_user, </if>
+            <if test='updateDate != null'> update_date, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >#{id,jdbcType=VARCHAR},</if>
+            <if test="returnId != null" >#{returnId,jdbcType=VARCHAR},</if>
+            <if test="fileName != null" >#{fileName,jdbcType=VARCHAR},</if>
+            <if test="fileSize != null" >#{fileSize,jdbcType=BIGINT},</if>
+            <if test='status != null'> #{status,jdbcType=VARCHAR}, </if>
+            <if test="createUser != null" >#{createUser,jdbcType=VARCHAR},</if>
+            <if test="createDate != null" >#{createDate,jdbcType=TIMESTAMP},</if>
+            <if test="updateUser != null" > #{updateUser,jdbcType=VARCHAR},</if>
+            <if test="updateDate != null" >#{updateDate,jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <insert id="saveOtAttachmentBind" parameterType="com.evergrande.qms.model.QmsOtAttachmentBind">
+        insert into qms_ot_attachment_bind
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test='id != null'> id, </if>
+            <if test='otAttachmentId != null'> ot_attachment_id, </if>
+            <if test='relevanceId != null'> relevance_id, </if>
+            <if test='type != null'> type, </if>
+            <if test='status != null'> status, </if>
+            <if test='createUser != null'> create_user, </if>
+            <if test='createDate != null'> create_date, </if>
+            <if test='updateUser != null'> update_user, </if>
+            <if test='updateDate != null'> update_date, </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >#{id,jdbcType=VARCHAR},</if>
+            <if test="otAttachmentId != null" >#{otAttachmentId,jdbcType=VARCHAR},</if>
+            <if test="relevanceId != null" >#{relevanceId,jdbcType=VARCHAR},</if>
+            <if test='type != null'> #{type,jdbcType=VARCHAR}, </if>
+            <if test='status != null'> #{status,jdbcType=VARCHAR}, </if>
+            <if test="createUser != null" >#{createUser,jdbcType=VARCHAR},</if>
+            <if test="createDate != null" >#{createDate,jdbcType=TIMESTAMP},</if>
+            <if test="updateUser != null" > #{updateUser,jdbcType=VARCHAR},</if>
+            <if test="updateDate != null" >#{updateDate,jdbcType=TIMESTAMP},</if>
+        </trim>
+    </insert>
+
+    <select id="getReturnId" resultType="java.util.Map">
+        SELECT
+            a.return_id,
+            a.file_name,
+            a.file_size,
+            t.relevance_id
+        FROM
+            qms_ot_attachment a,
+            qms_ot_attachment_bind t
+        WHERE
+            a.id = t.ot_attachment_id
+            AND a.`status` = 'Y'
+            AND t.`status` = 'Y'
+            AND t.type = #{type}
+            AND t.relevance_id = #{relevanceId}
+    </select>
+
+    <select id="findDownloadInfoByOrderNum" resultMap="UploadInfoBaseResultMap">
+        select
+                <include refid="Upload_Info_Base_Column_List"/>
+                    from qms_inspection_order o,
+                        qms_ot_attachment_bind ob,
+                        qms_ot_attachment oa
+                        where o.id = ob.relevance_id
+                        and oa.id = ob.ot_attachment_id
+                        and ob.status = 'Y'
+                        and oa.status = 'Y'
+                        and ob.type = #{type,jdbcType=VARCHAR}
+                        and o.inspection_order_num = #{inspectionOrderNum,jdbcType=VARCHAR}
+    </select>
+
+    <update id="deleteOtAttachmentByReturnId" parameterType="java.lang.String">
+        update qms_ot_attachment set status='N' where return_id = #{returnId,jdbcType=VARCHAR}
+    </update>
+
+    <update id="deleteOtAttachmentBindByReturnId" parameterType="java.lang.String">
+        UPDATE qms_ot_attachment_bind
+        SET STATUS = 'N'
+        WHERE
+        ot_attachment_id = ( SELECT id FROM qms_ot_attachment WHERE return_id = #{returnId,jdbcType=VARCHAR} )
+    </update>
+
+</mapper>

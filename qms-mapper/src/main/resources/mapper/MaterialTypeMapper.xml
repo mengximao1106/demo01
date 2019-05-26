@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.evergrande.qms.mapper.MaterialTypeMapper">
+    <sql id="base_column_list">
+        id,material_type_code,material_type_name,material_manager,crud_type,create_date,update_date
+    </sql>
+
+    <!-- 获取表记录数量 -->
+    <select id="getTableSize" resultType="java.lang.Integer">
+        select count(0) from qms_material_type
+    </select>
+
+    <select id="searchByMaterialTypeCode" parameterType="java.lang.String" resultType="com.evergrande.qms.model.MaterialType">
+        select
+        <include refid="base_column_list"/>
+        from qms_material_type
+        where material_type_code = #{materialTypeCode,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 新增物料组数据 -->
+    <insert id="batchAddMaterialType" parameterType="java.util.List">
+        insert into qms_material_type(<include refid="base_column_list"/>)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id,jdbcType=VARCHAR},
+            #{item.materialTypeCode,jdbcType=VARCHAR},
+            #{item.materialTypeName,jdbcType=VARCHAR},
+            #{item.materialManager,jdbcType=VARCHAR},
+            #{item.crudType,jdbcType=VARCHAR},
+            #{item.createDate,jdbcType=TIMESTAMP},
+            #{item.updateDate,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 修改物料组数据 -->
+    <update id="batchUpdateMaterialType" parameterType="java.util.List">
+        update qms_material_type
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="material_type_code=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.materialTypeCode !=null">
+                        when id=#{item.id} then #{item.materialTypeCode,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="material_type_name=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.materialTypeName !=null">
+                        when id=#{item.id} then #{item.materialTypeName,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="material_manager=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.materialManager !=null">
+                        when id=#{item.id} then #{item.materialManager,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="crud_type=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.crudType !=null">
+                        when id=#{item.id} then #{item.crudType,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_date=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateDate !=null">
+                        when id=#{item.id} then #{item.updateDate,jdbcType=TIMESTAMP}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <!-- 逻辑删除物料组数据 -->
+    <update id="batchDeleteMaterialType" parameterType="java.util.List">
+        update qms_material_type
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="crud_type=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.crudType !=null">
+                        when material_type_code=#{item.materialTypeCode} then #{item.crudType,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_date=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateDate !=null">
+                        when material_type_code=#{item.materialTypeCode} then #{item.updateDate,jdbcType=TIMESTAMP}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where material_type_code in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.materialTypeCode,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+</mapper>
+
+

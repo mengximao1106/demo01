@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.evergrande.qms.mapper.NationalStandardItemMapper">
+
+    <resultMap id="findNationalStandardItemResultMap" type="com.evergrande.qms.vo.NationalStandardItemVO" >
+        <id column="id" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="standard_num" property="standardNum" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="standard_name" property="standardName" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_code" property="inspectionCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_code" property="inspectionCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_item" property="inspectionItem" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="monitor_indicator_type" property="monitorIndicatorType" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="value_type" property="valueType" jdbcType="VARCHAR" javaType="java.lang.String" />
+    </resultMap>
+
+    <resultMap id="baseResultMap" type="com.evergrande.qms.model.NationalStandardItem" >
+        <id column="id" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="standard_num" property="standardNum" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_code" property="inspectionCode" jdbcType="VARCHAR" javaType="java.lang.String" /> <result column="create_user" property="createUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="create_user" property="createUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+        <result column="update_user" property="updateUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </resultMap>
+
+    <sql id="base_column_list">
+        id,standard_num,inspection_code,create_user,create_date,update_user,update_date
+    </sql>
+
+    <!-- 查询记录基本信息，主要用于检验唯一性，需要使用模糊查询的请自行增加方法 -->
+    <select id="findBastList" resultMap="baseResultMap"
+            parameterType="com.evergrande.qms.vo.NationalStandardItemVO" >
+        select
+        <include refid="base_column_list"/>
+        from qms_national_standard_item
+        <where>
+            <!-- 标准号 -->
+            <if test="standardNum != null and standardNum != ''">
+                and standard_num = #{standardNum,jdbcType=VARCHAR}
+            </if>
+            <!-- 检测编号 -->
+            <if test="inspectionCode != null and inspectionCode != ''">
+                and inspection_code = #{inspectionCode,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据检测项目库ID查询记录 -->
+    <select id="findByInspectionId" resultMap="findNationalStandardItemResultMap"
+            parameterType="com.evergrande.qms.vo.NationalStandardVO" >
+        SELECT n.id, n.standard_num, i.inspection_code, i.inspection_item
+        FROM qms_national_standard_item n
+        LEFT JOIN qms_inspection_item_info i on n.inspection_code = i.inspection_code
+        where i.id = #{inspectionId,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 根据条件查询记录 -->
+    <select id="findAllList" resultMap="findNationalStandardItemResultMap"
+            parameterType="java.lang.String" >
+        SELECT n.id, n.standard_num, i.inspection_code, i.inspection_item
+        FROM qms_national_standard_item n
+        LEFT JOIN qms_inspection_item_info i on n.inspection_code = i.inspection_code
+        ORDER BY n.create_date DESC
+    </select>
+
+    <!-- 根据标准号查询记录 -->
+    <select id="findByStandardNum" resultMap="findNationalStandardItemResultMap"
+            parameterType="java.lang.String" >
+        SELECT n.id, n.standard_num, i.inspection_code, i.inspection_item, i.monitor_indicator_type, i.value_type
+        FROM qms_inspection_item_info i
+        LEFT JOIN qms_national_standard_item n on n.inspection_code = i.inspection_code
+        where n.standard_num = #{standardNum,jdbcType=VARCHAR} and n.inspection_code is not null
+    </select>
+
+    <!-- 根据KEY查询记录 -->
+    <select id="findByKey" resultMap="findNationalStandardItemResultMap"
+            parameterType="com.evergrande.qms.vo.NationalStandardItemVO" >
+        SELECT n.id, n.standard_num, i.inspection_code, i.inspection_item, i.monitor_indicator_type, i.value_type
+        FROM qms_inspection_item_info i
+        LEFT JOIN qms_national_standard_item n on n.inspection_code = i.inspection_code
+        where 1=1
+        and n.standard_num = #{standardNum,jdbcType=VARCHAR}
+        and n.inspection_code = #{inspectionCode,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 新增记录 -->
+    <insert id="batchAdd" parameterType="java.util.List">
+        insert into qms_national_standard_item(<include refid="base_column_list"/>)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id,jdbcType=VARCHAR},
+            #{item.standardNum,jdbcType=VARCHAR},
+            #{item.inspectionCode,jdbcType=VARCHAR},
+            #{item.createUser,jdbcType=VARCHAR},
+            #{item.createDate,jdbcType=TIMESTAMP},
+            #{item.updateUser,jdbcType=VARCHAR},
+            #{item.updateDate,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 修改记录 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        update qms_national_standard_item
+        <trim prefix="set" suffixOverrides=",">
+            <!-- 国家标准号 -->
+            <trim prefix="standard_num=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.standardNum !=null and item.standardNum != ''">
+                        when id=#{item.id} then #{item.standardNum,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 检测编号 -->
+            <trim prefix="inspection_code=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.inspectionCode !=null and item.inspectionCode != ''">
+                        when id=#{item.id} then #{item.inspectionCode,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="update_user=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateUser !=null">
+                        when id=#{item.id} then #{item.updateUser,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_date=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateDate !=null">
+                        when id=#{item.id} then #{item.updateDate,jdbcType=TIMESTAMP}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <!-- 删除记录 -->
+    <delete id="delete" parameterType="java.lang.String">
+        delete from qms_national_standard_item
+        where id = #{id, jdbcType=VARCHAR}
+    </delete>
+
+    <!-- 批量删除记录 -->
+    <delete id="batchDelete" parameterType="java.util.List">
+        delete from qms_national_standard_item
+        where id in
+        <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+            #{id,jdbcType=VARCHAR}
+        </foreach>
+    </delete>
+
+    <!-- 根据国标库ID删除记录 -->
+    <delete id="deleteByStandardId" parameterType="java.lang.String">
+        delete from qms_national_standard_item
+        where standard_num in (
+            select standard_num from qms_national_standard
+            where id in
+            <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+                #{id,jdbcType=VARCHAR}
+            </foreach>
+        )
+    </delete>
+
+    <!-- 查询导出的数据 -->
+    <select id="findExportData" resultMap="findNationalStandardItemResultMap" parameterType="java.util.List">
+        SELECT n.id, n.standard_num, ns.standard_name, n.inspection_code, i.inspection_item
+        FROM qms_national_standard_item n
+        LEFT JOIN qms_inspection_item_info i on n.inspection_code = i.inspection_code
+        LEFT JOIN qms_national_standard ns on n.standard_num = ns.standard_num
+        WHERE n.standard_num in
+        <foreach collection="list" index="index" item="standardNum" separator="," open="(" close=")">
+            #{standardNum,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+</mapper>
+
+

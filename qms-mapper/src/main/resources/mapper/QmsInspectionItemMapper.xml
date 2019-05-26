@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.evergrande.qms.mapper.QmsInspectionItemMapper">
+    <resultMap id="baseResultMap" type="com.evergrande.qms.model.QmsInspectionItem" >
+        <id column="id" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="standard_num" property="standardNum" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="standard_name" property="standardName" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="material_code" property="materialCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_code" property="inspectionCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+    </resultMap>
+    <select id="findAll" resultMap="baseResultMap" parameterType="java.util.Map">
+        select
+        distinct t.standard_num,
+        t1.standard_name
+        from
+        qms_inspection_item t LEFT JOIN qms_national_standard t1 ON t.standard_num=t1.standard_num
+        where t.material_code = #{materialCode,jdbcType=VARCHAR}
+        <!--<where>-->
+            <if test="standardNum != null and standardNum != ''">
+                and t.standard_num like concat(concat('%',#{standardNum}),'%')
+            </if>
+        <!--</where>-->
+
+    </select>
+</mapper>

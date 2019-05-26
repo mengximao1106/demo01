@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.evergrande.qms.mapper.OssAttachmentMapper">
+
+    <sql id="base_column_list">
+        id,oss_key,oss_url,original_file_name,file_size,create_user,create_date,update_user,update_date,status
+    </sql>
+
+    <!-- 新增记录 -->
+    <insert id="batchAdd" parameterType="java.util.List">
+        insert into qms_oss_attachment(<include refid="base_column_list"/>)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id,jdbcType=VARCHAR},
+            #{item.ossKey,jdbcType=VARCHAR},
+            #{item.ossUrl,jdbcType=VARCHAR},
+            #{item.originalFileName,jdbcType=VARCHAR},
+            #{item.fileSize,jdbcType=BIGINT},
+            #{item.createUser,jdbcType=VARCHAR},
+            #{item.createDate,jdbcType=TIMESTAMP},
+            #{item.updateUser,jdbcType=VARCHAR},
+            #{item.updateDate,jdbcType=TIMESTAMP},
+            #{item.status,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
+    <resultMap id="baseResultMap" type="com.evergrande.qms.vo.OssAttachmentVO" >
+        <id column="id" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="bId" property="bId" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="oss_key" property="ossKey" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="oss_url" property="ossUrl" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="original_file_name" property="originalFileName" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="file_size" property="fileSize" jdbcType="BIGINT" javaType="java.lang.Long" />
+    </resultMap>
+
+    <!-- 查询OSS附件信息 -->
+    <select id="findAllList" parameterType="com.evergrande.qms.model.OssAttachmentBind" resultMap="baseResultMap">
+        SELECT b.id as bId, a.id, a.oss_key, a.oss_url, a.original_file_name, a.file_size
+        FROM qms_oss_attachment_bind b
+        LEFT JOIN qms_oss_attachment a on b.oss_attachment_id = a.id
+        <where>
+            <if test="relevanceId != null and relevanceId != ''">
+                and b.relevance_id = #{relevanceId,jdbcType=VARCHAR}
+            </if>
+            <if test="type != null and type != ''">
+                and b.type = #{type,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.String" >
+        delete from qms_oss_attachment
+        where id = #{id,jdbcType=VARCHAR}
+    </delete>
+
+    <!-- 根据绑定ID删除附件 Add by laifuying -->
+    <delete id="batchDeleteByRelevanceId" parameterType="java.util.List">
+        DELETE a
+        FROM
+        qms_oss_attachment AS a
+        INNER JOIN qms_oss_attachment_bind AS b ON a.id = b.oss_attachment_id
+        AND b.relevance_id IN
+        <foreach collection="list" index="index" item="relevanceId" separator="," open="(" close=")">
+            #{relevanceId,jdbcType=VARCHAR}
+        </foreach>
+    </delete>
+
+    <!-- 根据绑定ID删除附件 Add by laifuying -->
+    <delete id="batchDeleteById" parameterType="java.util.List">
+        delete from qms_oss_attachment where id in
+        <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+            #{id,jdbcType=VARCHAR}
+        </foreach>
+    </delete>
+
+    <!-- 修改记录 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        update qms_oss_attachment
+        <trim prefix="set" suffixOverrides=",">
+            <!-- oss_key -->
+            <trim prefix="oss_key=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.ossKey !=null and item.ossKey != ''">
+                        when id=#{item.id} then #{item.ossKey,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- oss_url -->
+            <trim prefix="oss_url=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.ossUrl !=null and item.ossUrl != ''">
+                        when id=#{item.id} then #{item.ossUrl,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- original_file_name -->
+            <trim prefix="original_file_name=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.originalFileName !=null and item.originalFileName != ''">
+                        when id=#{item.id} then #{item.originalFileName,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="update_user=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateUser !=null">
+                        when id=#{item.id} then #{item.updateUser,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_date=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateDate !=null">
+                        when id=#{item.id} then #{item.updateDate,jdbcType=TIMESTAMP}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+</mapper>

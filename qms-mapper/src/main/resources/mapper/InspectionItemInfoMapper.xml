@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.evergrande.qms.mapper.InspectionItemInfoMapper">
+
+    <resultMap id="baseResultMap" type="com.evergrande.qms.model.InspectionItemInfo" >
+        <id column="id" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_code" property="inspectionCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_item" property="inspectionItem" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="monitor_indicator_type" property="monitorIndicatorType" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="value_type" property="valueType" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="status" property="status" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="create_user" property="createUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+        <result column="update_user" property="updateUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </resultMap>
+
+    <sql id="base_column_list">
+        id,inspection_code,inspection_item,monitor_indicator_type,value_type,
+        status,create_user,create_date,update_user,update_date
+    </sql>
+    <!--根据标准号,查询下面的检测项目编号-->
+    <select id="findItem" resultMap="baseResultMap"  parameterType="java.util.Map">
+        SELECT
+        t2.inspection_code,
+        t2.inspection_item,
+        t2.monitor_indicator_type,
+        t2.value_type
+        FROM
+        qms_national_standard_item AS t
+        LEFT JOIN qms_inspection_item AS t1 ON t.inspection_code=t1.inspection_code
+        LEFT JOIN qms_inspection_item_info t2 ON t1.inspection_code=t2.inspection_code
+        WHERE  t2.`status`='0' AND t.standard_num=#{standardNum,jdbcType=VARCHAR} AND t1.material_code=#{materialCode,jdbcType=VARCHAR}
+
+    </select>
+
+    <!-- 根据ID查询记录 -->
+    <select id="get" resultMap="baseResultMap" parameterType="java.lang.String" >
+        select
+        <include refid="base_column_list" />
+        from qms_inspection_item_info
+        where id = #{id,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 获取表记录数量 -->
+    <select id="getTableSize" resultType="java.lang.Integer" parameterType="com.evergrande.qms.model.InspectionItemInfo">
+        select count(0) from qms_inspection_item_info
+        <where>
+            <if test="inspectionCode != null and inspectionCode != ''">
+                and inspection_code like CONCAT('%',#{inspectionCode,jdbcType=VARCHAR},'%' )
+            </if>
+            <if test="inspectionItem != null and inspectionItem != ''">
+                and inspection_item like CONCAT('%',#{inspectionItem,jdbcType=VARCHAR},'%' )
+            </if>
+            <if test="monitorIndicatorType != null and monitorIndicatorType != ''">
+                and monitor_indicator_type like CONCAT('%',#{monitorIndicatorType,jdbcType=VARCHAR},'%' )
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据条件查询全部记录 -->
+    <select id="findAllList" resultMap="baseResultMap" parameterType="com.evergrande.qms.model.InspectionItemInfo" >
+        select
+        <include refid="base_column_list" />
+        from qms_inspection_item_info
+        <where>
+            <if test="inspectionCode != null and inspectionCode != ''">
+                and inspection_code like CONCAT('%',#{inspectionCode,jdbcType=VARCHAR},'%' )
+            </if>
+            <if test="inspectionItem != null and inspectionItem != ''">
+                and inspection_item like CONCAT('%',#{inspectionItem,jdbcType=VARCHAR},'%' )
+            </if>
+            <if test="monitorIndicatorType != null and monitorIndicatorType != ''">
+                and monitor_indicator_type like CONCAT('%',#{monitorIndicatorType,jdbcType=VARCHAR},'%' )
+            </if>
+            <if test="status != null and status != ''">
+                and status = #{status,jdbcType=VARCHAR}
+            </if>
+        </where>
+        ORDER BY create_date DESC
+    </select>
+
+    <!-- 根据检测项目名称查询记录 -->
+    <select id="findByInspectionItem" parameterType="java.lang.String" resultMap="baseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_inspection_item_info
+        where inspection_item = #{inspectionItem,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 根据检测编码查询记录 -->
+    <select id="findByInspectionCode" parameterType="java.lang.String" resultMap="baseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_inspection_item_info
+        where inspection_Code = #{inspectionCode,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 新增检测项目数据 -->
+    <insert id="batchAdd" parameterType="java.util.List">
+        insert into qms_inspection_item_info(<include refid="base_column_list"/>)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id,jdbcType=VARCHAR},
+            #{item.inspectionCode,jdbcType=VARCHAR},
+            #{item.inspectionItem,jdbcType=VARCHAR},
+            #{item.monitorIndicatorType,jdbcType=VARCHAR},
+            #{item.valueType,jdbcType=VARCHAR},
+            #{item.status,jdbcType=VARCHAR},
+            #{item.createUser,jdbcType=VARCHAR},
+            #{item.createDate,jdbcType=TIMESTAMP},
+            #{item.updateUser,jdbcType=VARCHAR},
+            #{item.updateDate,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 修改检测项目数据 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        update qms_inspection_item_info
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="inspection_code=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.inspectionCode !=null">
+                        when id=#{item.id} then #{item.inspectionCode,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="inspection_item=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.inspectionItem !=null">
+                        when id=#{item.id} then #{item.inspectionItem,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="monitor_indicator_type=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.monitorIndicatorType !=null">
+                        when id=#{item.id} then #{item.monitorIndicatorType,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="value_type=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.valueType !=null">
+                        when id=#{item.id} then #{item.valueType,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="status=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.status !=null">
+                        when id=#{item.id} then #{item.status,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_user=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateUser !=null">
+                        when id=#{item.id} then #{item.updateUser,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_date=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateDate !=null">
+                        when id=#{item.id} then #{item.updateDate,jdbcType=TIMESTAMP}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <!-- 删除记录 -->
+    <delete id="delete" parameterType="java.lang.String">
+        delete from qms_inspection_item_info
+        where id = #{id, jdbcType=VARCHAR}
+    </delete>
+
+    <!-- 批量删除记录 -->
+    <delete id="batchDelete" parameterType="java.util.List">
+        delete from qms_inspection_item_info
+        where id in
+        <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+            #{id,jdbcType=VARCHAR}
+        </foreach>
+    </delete>
+
+    <!-- 逻辑删除检测项目数据 -->
+    <update id="batchDeleteItem" parameterType="java.util.List">
+        update qms_inspection_item_info
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="status=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.status !=null">
+                        when id=#{item.id} then #{item.status,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="status=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.status !=null">
+                        when id=#{item.id} then #{item.status,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_date=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateDate !=null">
+                        when id=#{item.id} then #{item.updateDate,jdbcType=TIMESTAMP}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <!-- 查询导出的数据 -->
+    <select id="findExportData" resultMap="baseResultMap" parameterType="java.util.List">
+        select
+        <include refid="base_column_list"/>
+        from qms_inspection_item_info
+        where id in
+        <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+            #{id,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+    <!-- 获取表记录数量 -->
+    <select id="getExportSize" resultType="java.lang.Integer" parameterType="java.util.List">
+        select count(0) from qms_inspection_item_info
+        where id in
+        <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+            #{id,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <select id="getByMaterialCode" resultType="java.util.Map">
+        SELECT
+            ii.inspection_code,
+            ii.inspection_item,
+            i.standard_num
+        FROM
+            qms_inspection_item i,
+            qms_inspection_item_info ii
+        WHERE
+            i.inspection_code = ii.inspection_code
+            AND i.material_code = #{materialCode}
+    </select>
+
+    <select id="findInspectionCode" resultMap="baseResultMap" parameterType="com.evergrande.qms.model.InspectionItemInfo" >
+        select
+        <include refid="base_column_list" />
+        from qms_inspection_item_info
+        <where>
+            <if test="inspectionCode != null and inspectionCode != ''">
+                and inspection_code like CONCAT('%',#{inspectionCode,jdbcType=VARCHAR},'%' )
+            </if>
+            <if test="inspectionItem != null and inspectionItem != ''">
+                and inspection_item like CONCAT('%',#{inspectionItem,jdbcType=VARCHAR},'%' )
+            </if>
+
+        </where>
+    </select>
+</mapper>
+
+

@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.evergrande.qms.mapper.InspectionItemMapper">
+
+    <resultMap id="findInspectionItemManageResultMap" type="com.evergrande.qms.vo.InspectionItemVO" >
+        <id column="id" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="material_code" property="materialCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="material_name" property="materialName" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="material_type_code" property="materialTypeCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="material_type_name" property="materialTypeName" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="material_category" property="materialCategory" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="standard_num" property="standardNum" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_standard" property="inspectionStandard" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_code" property="inspectionCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_item" property="inspectionItem" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="monitor_indicator_type" property="monitorIndicatorType" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="value_type" property="valueType" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="referenced_standard" property="referencedStandard" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="more_than_value" property="moreThanValue" jdbcType="DOUBLE" javaType="java.lang.Double" />
+        <result column="less_than_value" property="lessThanValue" jdbcType="DOUBLE" javaType="java.lang.Double" />
+        <result column="unit" property="unit" jdbcType="VARCHAR" javaType="java.lang.String" />
+    </resultMap>
+
+    <resultMap id="baseResultMap" type="com.evergrande.qms.model.InspectionItem" >
+        <id column="id" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="material_code" property="materialCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="standard_num" property="standardNum" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_code" property="inspectionCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="referenced_standard" property="referencedStandard" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="more_than_value" property="moreThanValue" jdbcType="DOUBLE" javaType="java.lang.Double" />
+        <result column="less_than_value" property="lessThanValue" jdbcType="DOUBLE" javaType="java.lang.Double" />
+        <result column="unit" property="unit" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="create_user" property="createUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+        <result column="update_user" property="updateUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </resultMap>
+
+    <sql id="base_column_list">
+        id,material_code,standard_num,inspection_code,referenced_standard,more_than_value,less_than_value,
+        unit,create_user,create_date,update_user,update_date
+    </sql>
+
+    <sql id="base_sql">
+        SELECT
+            i.id, m.material_code, m.material_name, mt.material_type_code, mt.material_type_name, m.material_category,
+            ii.monitor_indicator_type, ii.inspection_code, ii.inspection_item, ii.value_type, i.standard_num,n.standard_name inspection_standard,
+            i.referenced_standard, i.more_than_value, i.less_than_value, i.unit
+        FROM qms_inspection_item i
+        LEFT JOIN qms_material m on i.material_code = m.material_code
+        LEFT JOIN qms_material_type mt on m.material_type_code = mt.material_type_code
+        LEFT JOIN qms_inspection_item_info ii on i.inspection_code = ii.inspection_code
+        LEFT JOIN qms_national_standard n on i.standard_num = n.standard_num
+    </sql>
+
+    <!-- 根据ID查询记录 -->
+    <select id="get" parameterType="java.lang.String" resultMap="baseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_inspection_item
+        where id = #{id,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 根据条件查询记录, 主要用于判断记录的唯一性 -->
+    <select id="findBaseList" parameterType="com.evergrande.qms.vo.InspectionItemVO" resultMap="baseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_inspection_item
+        <where>
+            <if test="materialCode != null and materialCode != ''">
+                and material_code = #{materialCode,jdbcType=VARCHAR}
+            </if>
+            <if test="inspectionCode != null and inspectionCode != ''">
+                and inspection_code = #{inspectionCode,jdbcType=VARCHAR}
+            </if>
+            <if test="standardNum != null and standardNum != ''">
+                and standard_num = #{standardNum,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据国家标准号查询记录 -->
+    <select id="findByStandardId" parameterType="java.lang.String" resultMap="baseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_inspection_item
+        where standard_num in (
+            select standard_num from qms_national_standard
+            where id = #{id,jdbcType=VARCHAR}
+        )
+    </select>
+
+    <!-- 根据条件物料关联检测项目管理记录 -->
+    <select id="findAllList" resultMap="findInspectionItemManageResultMap"
+            parameterType="com.evergrande.qms.vo.InspectionItemVO" >
+        <include refid="base_sql"/>
+        ORDER BY i.create_date DESC
+    </select>
+
+    <!-- 根据物料编码查询出物料关联检测项目管理记录 -->
+    <select id="findByMaterialCode" resultMap="findInspectionItemManageResultMap"
+            parameterType="java.lang.String" >
+        <include refid="base_sql"/>
+        where i.material_code = #{materialCode,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 新增物料关联检测项目管理数据 -->
+    <insert id="batchAdd" parameterType="java.util.List">
+        insert into qms_inspection_item(<include refid="base_column_list"/>)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id,jdbcType=VARCHAR},
+            #{item.materialCode,jdbcType=VARCHAR},
+            #{item.standardNum,jdbcType=VARCHAR},
+            #{item.inspectionCode,jdbcType=VARCHAR},
+            #{item.referencedStandard,jdbcType=VARCHAR},
+            #{item.moreThanValue,jdbcType=VARCHAR},
+            #{item.lessThanValue,jdbcType=VARCHAR},
+            #{item.unit,jdbcType=VARCHAR},
+            #{item.createUser,jdbcType=VARCHAR},
+            #{item.createDate,jdbcType=TIMESTAMP},
+            #{item.updateUser,jdbcType=VARCHAR},
+            #{item.updateDate,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 修改物料关联检测项目管理数据 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        update qms_inspection_item
+        <trim prefix="set" suffixOverrides=",">
+            <!-- 物料编码 -->
+            <trim prefix="material_code=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.materialCode !=null and item.materialCode != ''">
+                        when id=#{item.id} then #{item.materialCode,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 执行标准（国标编码） -->
+            <trim prefix="standard_num=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.standardNum !=null and item.standardNum != ''">
+                        when id=#{item.id} then #{item.standardNum,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 检测项目编码 -->
+            <trim prefix="inspection_code=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.inspectionCode !=null and item.inspectionCode != ''">
+                        when id=#{item.id} then #{item.inspectionCode,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 引用的方法标准 -->
+            <trim prefix="referenced_standard=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.referencedStandard !=null and item.referencedStandard != ''">
+                        when id=#{item.id} then #{item.referencedStandard,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 检测限值（>=） -->
+            <trim prefix="more_than_value=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.moreThanValue !=null and item.moreThanValue != ''">
+                        when id=#{item.id} then #{item.moreThanValue,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 检测限值（<=） -->
+            <trim prefix="less_than_value=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.lessThanValue !=null and item.lessThanValue != ''">
+                        when id=#{item.id} then #{item.lessThanValue,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 单位 -->
+            <trim prefix="unit=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.unit !=null and item.unit != ''">
+                        when id=#{item.id} then #{item.unit,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="update_user=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateUser !=null">
+                        when id=#{item.id} then #{item.updateUser,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_date=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateDate !=null">
+                        when id=#{item.id} then #{item.updateDate,jdbcType=TIMESTAMP}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <!-- 删除记录 -->
+    <delete id="delete" parameterType="java.lang.String">
+        delete from qms_inspection_item
+        where id = #{id, jdbcType=VARCHAR}
+    </delete>
+
+    <!-- 批量删除记录 -->
+    <delete id="batchDelete" parameterType="java.util.List">
+        delete from qms_inspection_item
+        where id in
+        <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+            #{id,jdbcType=VARCHAR}
+        </foreach>
+    </delete>
+
+    <!-- 根据物料编码删除记录 -->
+    <delete id="deleteByMaterialId" parameterType="java.lang.String">
+        delete from qms_inspection_item
+        where material_code in (
+            select material_code from qms_material_manage
+            where id in
+            <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+                #{id,jdbcType=VARCHAR}
+            </foreach>
+        )
+    </delete>
+
+    <!-- 查询导出的数据 -->
+    <select id="findExportData" resultMap="findInspectionItemManageResultMap" parameterType="java.util.List">
+        <include refid="base_sql"/>
+        where i.id in
+        <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+            #{id,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <!-- 查询导出的数据 -->
+    <select id="findExportDataByMaterialCodes" resultMap="findInspectionItemManageResultMap" parameterType="java.util.List">
+        <include refid="base_sql"/>
+        where i.material_code in
+        <foreach collection="list" index="index" item="materialCode" separator="," open="(" close=")">
+            #{materialCode, jdbcType=VARCHAR}
+        </foreach>
+    </select>
+</mapper>
+
+

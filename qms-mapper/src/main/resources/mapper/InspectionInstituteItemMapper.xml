@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.evergrande.qms.mapper.InspectionInstituteItemMapper">
+
+    <resultMap id="findItemResultMap" type="com.evergrande.qms.vo.InspectionInstituteItemVO" >
+        <id column="id" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="institute_code" property="instituteCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="institute_name" property="instituteName" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="material_type_code" property="materialTypeCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="material_type_name" property="materialTypeName" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="standard_num" property="standardNum" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="standard_name" property="standardName" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_code" property="inspectionCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_item" property="inspectionItem" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_period" property="inspectionPeriod" jdbcType="DOUBLE" javaType="java.lang.Double" />
+        <result column="inspection_fee" property="inspectionFee" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+        <result column="status" property="status" jdbcType="VARCHAR" javaType="java.lang.String" />
+    </resultMap>
+
+    <resultMap id="baseResultMap" type="com.evergrande.qms.model.InspectionInstituteItem" >
+        <id column="id" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="institute_code" property="instituteCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="material_type_code" property="materialTypeCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="standard_num" property="standardNum" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_code" property="inspectionCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="inspection_period" property="inspectionPeriod" jdbcType="DOUBLE" javaType="java.lang.Double" />
+        <result column="inspection_fee" property="inspectionFee" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+        <result column="status" property="status" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="create_user" property="createUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+        <result column="update_user" property="updateUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </resultMap>
+
+    <sql id="base_column_list">
+        id,institute_code,material_type_code,standard_num,inspection_code,inspection_period,
+        inspection_fee,status,create_user,create_date,update_user,update_date
+    </sql>
+
+    <!-- 根据ID查询记录 -->
+    <select id="get" parameterType="java.lang.String" resultMap="baseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_inspection_institute_item
+        where id = #{instituteCode,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 查询基础表数据 主要用于判断记录的唯一性,需要模糊查询的同学，请自己另外增加功能 -->
+    <select id="findBaseList" parameterType="com.evergrande.qms.vo.InspectionInstituteItemVO" resultMap="baseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_inspection_institute_item
+        <where>
+            <!-- 检测院编码 -->
+            <if test="instituteCode != null and instituteCode != ''">
+                and institute_code = #{instituteCode,jdbcType=VARCHAR}
+            </if>
+            <!-- 物料组编码/代码 -->
+            <if test="materialTypeCode != null and materialTypeCode != ''">
+                and material_type_code = #{materialTypeCode,jdbcType=VARCHAR}
+            </if>
+            <!-- 国家标准号 -->
+            <if test="standardNum != null and standardNum != ''">
+                and standard_num = #{standardNum,jdbcType=VARCHAR}
+            </if>
+            <!-- 检测项目编码 -->
+            <if test="inspectionCode != null and inspectionCode != ''">
+                and inspection_code = #{inspectionCode,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+    <!-- 根据国家标准号查询记录 -->
+    <select id="findByStandardId" parameterType="java.lang.String" resultMap="baseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_inspection_institute_item
+        where standard_num in (
+            select standard_num from qms_national_standard
+            where id = #{id,jdbcType=VARCHAR}
+        )
+    </select>
+
+    <!-- 查询检测院项目详细信息 -->
+    <select id="findAllList" resultMap="findItemResultMap" parameterType="com.evergrande.qms.vo.InspectionInstituteItemVO" >
+        SELECT
+            ii.id, ii.institute_code, i.institute_name, ii.material_type_code, m.material_type_name,
+            ii.standard_num, n.standard_name,ii.inspection_code, iii.inspection_item,
+            ii.inspection_period, ii.inspection_fee, ii.status
+        FROM qms_inspection_institute_item ii
+        LEFT JOIN qms_inspection_institute i on ii.institute_code = i.institute_code
+        LEFT JOIN qms_material_type m on ii.material_type_code = m.material_type_code
+        LEFT JOIN qms_national_standard n on ii.standard_num = n.standard_num
+        LEFT JOIN qms_inspection_item_info iii on ii.inspection_code = iii.inspection_code
+        <where>
+            <!-- 检测院编码 -->
+            <if test="instituteCode != null and instituteCode != ''">
+                and ii.institute_code = #{instituteCode,jdbcType=VARCHAR}
+            </if>
+        </where>
+        ORDER BY ii.create_date DESC
+    </select>
+
+    <!-- 新增检测院项目 -->
+    <insert id="batchAdd" parameterType="java.util.List">
+        insert into qms_inspection_institute_item(<include refid="base_column_list"/>)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id,jdbcType=VARCHAR},
+            #{item.instituteCode,jdbcType=VARCHAR},
+            #{item.materialTypeCode,jdbcType=VARCHAR},
+            #{item.standardNum,jdbcType=VARCHAR},
+            #{item.inspectionCode,jdbcType=VARCHAR},
+            #{item.inspectionPeriod,jdbcType=VARCHAR},
+            #{item.inspectionFee,jdbcType=DECIMAL},
+            #{item.status,jdbcType=VARCHAR},
+            #{item.createUser,jdbcType=VARCHAR},
+            #{item.createDate,jdbcType=TIMESTAMP},
+            #{item.updateUser,jdbcType=VARCHAR},
+            #{item.updateDate,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 修改检测院项目 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        update qms_inspection_institute_item
+        <trim prefix="set" suffixOverrides=",">
+            <!-- 检测院编码 -->
+            <trim prefix="institute_code=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.instituteCode !=null and item.instituteCode != ''">
+                        when id=#{item.id} then #{item.instituteCode,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 物料组编码/代码 -->
+            <trim prefix="material_type_code=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.materialTypeCode !=null and item.materialTypeCode != ''">
+                        when id=#{item.id} then #{item.materialTypeCode,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 国家标准号 -->
+            <trim prefix="standard_num=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.standardNum !=null and item.standardNum != ''">
+                        when id=#{item.id} then #{item.standardNum,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 检测项目编码 -->
+            <trim prefix="inspection_code=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.inspectionCode !=null and item.inspectionCode != ''">
+                        when id=#{item.id} then #{item.inspectionCode,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 检测周期 -->
+            <trim prefix="inspection_period=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.inspectionPeriod !=null and item.inspectionPeriod != ''">
+                        when id=#{item.id} then #{item.inspectionPeriod,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 检测金额 -->
+            <trim prefix="inspection_fee=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.inspectionFee !=null and item.inspectionFee != ''">
+                        when id=#{item.id} then #{item.inspectionFee,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 状态 -->
+            <trim prefix="status=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.status !=null and item.status != ''">
+                        when id=#{item.id} then #{item.status,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="update_user=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateUser !=null">
+                        when id=#{item.id} then #{item.updateUser,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_date=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateDate !=null">
+                        when id=#{item.id} then #{item.updateDate,jdbcType=TIMESTAMP}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <!-- 删除记录 -->
+    <delete id="delete" parameterType="java.lang.String">
+        delete from qms_inspection_institute_item
+        where id = #{id, jdbcType=VARCHAR}
+    </delete>
+
+    <!-- 批量删除记录 -->
+    <delete id="batchDelete" parameterType="java.util.List">
+        delete from qms_inspection_institute_item
+        where id in
+        <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+            #{id,jdbcType=VARCHAR}
+        </foreach>
+    </delete>
+
+    <!-- 查询导出的数据 -->
+    <select id="findExportData" resultMap="findItemResultMap" parameterType="com.evergrande.qms.vo.InspectionInstituteItemVO" >
+        SELECT
+            ii.id, ii.institute_code, i.institute_name, ii.material_type_code, m.material_type_name,
+            ii.standard_num, n.standard_name,ii.inspection_code, iii.inspection_item,
+            ii.inspection_period, ii.inspection_fee, ii.status
+        FROM qms_inspection_institute_item ii
+        LEFT JOIN qms_inspection_institute i on ii.institute_code = i.institute_code
+        LEFT JOIN qms_material_type m on ii.material_type_code = m.material_type_code
+        LEFT JOIN qms_national_standard n on ii.standard_num = n.standard_num
+        LEFT JOIN qms_inspection_item_info iii on ii.inspection_code = iii.inspection_code
+        WHERE ii.institute_code in
+        <foreach collection="list" index="index" item="instituteCode" separator="," open="(" close=")">
+            #{instituteCode,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+</mapper>
+
+

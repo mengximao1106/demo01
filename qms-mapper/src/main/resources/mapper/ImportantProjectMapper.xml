@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.evergrande.qms.mapper.ImportantProjectMapper">
+
+    <resultMap id="findImportantProjectResultMap" type="com.evergrande.qms.vo.ImportantProjectVO" >
+        <id column="id" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="project_code" property="projectCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="project_name" property="projectName" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="province" property="province" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="provinceName" property="provinceName" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="city" property="city" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="cityName" property="cityName" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="detailed_address" property="detailedAddress" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="project_contact" property="projectContact" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="project_contact_telephone" property="projectContactTelephone" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="imp_project_contact" property="impProjectContact" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="imp_project_contact_telephone" property="impProjectContactTelephone" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="quality_checker" property="qualityChecker" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="quality_checker_telephone" property="qualityCheckerTelephone" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="mana_center_contact" property="manaCenterContact" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="mana_center_telephone" property="manaCenterTelephone" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="department" property="department" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="remark" property="remark" jdbcType="VARCHAR" javaType="java.lang.String" />
+    </resultMap>
+
+    <resultMap id="baseResultMap" type="com.evergrande.qms.model.ImportantProject" >
+        <id column="id" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="project_code" property="projectCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="province" property="province" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="city" property="city" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="detailed_address" property="detailedAddress" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="project_contact" property="projectContact" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="project_contact_telephone" property="projectContactTelephone" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="imp_project_contact" property="impProjectContact" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="imp_project_contact_telephone" property="impProjectContactTelephone" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="quality_checker" property="qualityChecker" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="quality_checker_telephone" property="qualityCheckerTelephone" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="mana_center_contact" property="manaCenterContact" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="mana_center_telephone" property="manaCenterTelephone" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="department" property="department" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="remark" property="remark" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="create_user" property="createUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+        <result column="update_user" property="updateUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+        <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </resultMap>
+
+    <sql id="base_column_list">
+        id,project_code,province,city,detailed_address,project_contact,project_contact_telephone,
+        imp_project_contact,imp_project_contact_telephone,quality_checker,quality_checker_telephone,
+        mana_center_contact,mana_center_telephone,department,remark,create_user,create_date,update_user,update_date
+    </sql>
+
+    <sql id="base_sql">
+        SELECT
+            i.id,i.project_code,p.project_name,i.province,i.city,i.detailed_address,i.project_contact,
+            i.project_contact_telephone,i.imp_project_contact,i.imp_project_contact_telephone,
+            i.quality_checker,i.quality_checker_telephone,i.mana_center_contact,i.mana_center_telephone,
+            i.department,i.remark,d.dic_value as provinceName, d2.dic_value as cityName
+        FROM qms_important_project i
+        LEFT JOIN qms_project p on i.project_code = p.project_code
+        LEFT JOIN qms_dictionary d on i.province = d.dic_name
+        LEFT JOIN qms_dictionary d2 on i.city = d2.dic_name
+    </sql>
+
+    <!-- 根据项目编码查询记录, 主要用于判断记录的唯一性 -->
+    <select id="findByProjectCode" parameterType="java.lang.String" resultMap="baseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_important_project
+        where project_code = #{projectCode,jdbcType=VARCHAR}
+    </select>
+
+    <!-- 查询全部记录 -->
+    <select id="findAllList" resultMap="findImportantProjectResultMap"
+            parameterType="com.evergrande.qms.vo.ImportantProjectVO" >
+        <include refid="base_sql"/>
+        <where>
+            <if test="projectCode != null and projectCode != ''">
+                and i.project_code like CONCAT('%',#{projectCode,jdbcType=VARCHAR},'%' )
+            </if>
+            <if test="projectName != null and projectName != ''">
+                and p.project_name like CONCAT('%',#{projectName,jdbcType=VARCHAR},'%' )
+            </if>
+        </where>
+        ORDER BY i.create_date DESC
+    </select>
+
+    <!-- 获取表记录数量 -->
+    <select id="getTableSize" resultType="java.lang.Integer" parameterType="com.evergrande.qms.vo.ImportantProjectVO">
+        select count(0)
+        FROM qms_important_project i
+        LEFT JOIN qms_project p on i.project_code = p.project_code
+        <where>
+            <if test="projectCode != null and projectCode != ''">
+                and i.project_code like CONCAT('%',#{projectCode,jdbcType=VARCHAR},'%' )
+            </if>
+            <if test="projectName != null and projectName != ''">
+                and p.project_name like CONCAT('%',#{projectName,jdbcType=VARCHAR},'%' )
+            </if>
+        </where>
+    </select>
+
+    <!-- 新增记录 -->
+    <insert id="batchAdd" parameterType="java.util.List">
+        insert into qms_important_project(<include refid="base_column_list"/>)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id,jdbcType=VARCHAR},
+            #{item.projectCode,jdbcType=VARCHAR},
+            #{item.province,jdbcType=VARCHAR},
+            #{item.city,jdbcType=VARCHAR},
+            #{item.detailedAddress,jdbcType=VARCHAR},
+            #{item.projectContact,jdbcType=VARCHAR},
+            #{item.projectContactTelephone,jdbcType=VARCHAR},
+            #{item.impProjectContact,jdbcType=VARCHAR},
+            #{item.impProjectContactTelephone,jdbcType=VARCHAR},
+            #{item.qualityChecker,jdbcType=VARCHAR},
+            #{item.qualityCheckerTelephone,jdbcType=VARCHAR},
+            #{item.manaCenterContact,jdbcType=VARCHAR},
+            #{item.manaCenterTelephone,jdbcType=VARCHAR},
+            #{item.department,jdbcType=VARCHAR},
+            #{item.remark,jdbcType=VARCHAR},
+            #{item.createUser,jdbcType=VARCHAR},
+            #{item.createDate,jdbcType=TIMESTAMP},
+            #{item.updateUser,jdbcType=VARCHAR},
+            #{item.updateDate,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
+    <!-- 修改记录 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        update qms_important_project
+        <trim prefix="set" suffixOverrides=",">
+            <!-- 重点项目代码 -->
+            <trim prefix="project_code=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.projectCode !=null and item.projectCode != ''">
+                        when id=#{item.id} then #{item.projectCode,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 省份 -->
+            <trim prefix="province=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.province !=null and item.province != ''">
+                        when id=#{item.id} then #{item.province,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 城市 -->
+            <trim prefix="city=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.city !=null and item.city != ''">
+                        when id=#{item.id} then #{item.city,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 详细地址 -->
+            <trim prefix="detailed_address=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.detailedAddress !=null and item.detailedAddress != ''">
+                        when id=#{item.id} then #{item.detailedAddress,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 项目联系人 -->
+            <trim prefix="project_contact=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.projectContact !=null and item.projectContact != ''">
+                        when id=#{item.id} then #{item.projectContact,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 项目联系人电话 -->
+            <trim prefix="project_contact_telephone=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.projectContactTelephone !=null and item.projectContactTelephone != ''">
+                        when id=#{item.id} then #{item.projectContactTelephone,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 重点项目联系人 -->
+            <trim prefix="imp_project_contact=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.impProjectContact !=null and item.impProjectContact != ''">
+                        when id=#{item.id} then #{item.impProjectContact,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 重点项目联系人电话 -->
+            <trim prefix="imp_project_contact_telephone=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.impProjectContactTelephone !=null and item.impProjectContactTelephone != ''">
+                        when id=#{item.id} then #{item.impProjectContactTelephone,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 质检联系人 -->
+            <trim prefix="quality_checker=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.qualityChecker !=null and item.qualityChecker != ''">
+                        when id=#{item.id} then #{item.qualityChecker,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 质检联系人电话 -->
+            <trim prefix="quality_checker_telephone=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.qualityCheckerTelephone !=null and item.qualityCheckerTelephone != ''">
+                        when id=#{item.id} then #{item.qualityCheckerTelephone,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 管理及监察中心联系人 -->
+            <trim prefix="mana_center_contact=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.manaCenterContact !=null and item.manaCenterContact != ''">
+                        when id=#{item.id} then #{item.manaCenterContact,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 管理及监察中心联系人电话 -->
+            <trim prefix="mana_center_telephone=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.manaCenterTelephone !=null and item.manaCenterTelephone != ''">
+                        when id=#{item.id} then #{item.manaCenterTelephone,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 所属质检部 -->
+            <trim prefix="department=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.department !=null and item.department != ''">
+                        when id=#{item.id} then #{item.department,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <!-- 备注 -->
+            <trim prefix="remark=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.remark !=null and item.remark != ''">
+                        when id=#{item.id} then #{item.remark,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+
+            <trim prefix="update_user=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateUser !=null">
+                        when id=#{item.id} then #{item.updateUser,jdbcType=VARCHAR}
+                    </if>
+                </foreach>
+            </trim>
+            <trim prefix="update_date=case" suffix="end,">
+                <foreach collection="list" item="item" index="index">
+                    <if test="item.updateDate !=null">
+                        when id=#{item.id} then #{item.updateDate,jdbcType=TIMESTAMP}
+                    </if>
+                </foreach>
+            </trim>
+        </trim>
+        where id in
+        <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+            #{item.id,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+    <!-- 删除记录 -->
+    <delete id="delete" parameterType="java.lang.String">
+        delete from qms_important_project
+        where id = #{id, jdbcType=VARCHAR}
+    </delete>
+
+    <!-- 批量删除记录 -->
+    <delete id="batchDelete" parameterType="java.util.List">
+        delete from qms_important_project
+        where id in
+        <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+            #{id,jdbcType=VARCHAR}
+        </foreach>
+    </delete>
+
+    <!-- 查询导出的数据 -->
+    <select id="findExportData" resultMap="findImportantProjectResultMap" parameterType="java.util.List">
+        <include refid="base_sql"/>
+        where i.id in
+        <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+            #{id,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <!-- 获取表记录数量 -->
+    <select id="getExportSize" resultType="java.lang.Integer" parameterType="java.util.List">
+        select count(0)
+        FROM qms_important_project i
+        where i.id in
+        <foreach collection="list" index="index" item="id" separator="," open="(" close=")">
+            #{id,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+</mapper>
+
+

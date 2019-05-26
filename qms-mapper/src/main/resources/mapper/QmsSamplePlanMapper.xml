@@ -1,0 +1,802 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.evergrande.qms.mapper.QmsSamplePlanMapper">
+    <resultMap id="BaseResultMap" type="com.evergrande.qms.model.QmsSamplePlan">
+        <id column="id" jdbcType="VARCHAR" property="id"  javaType="java.lang.String" />
+        <result column="sample_plan_code" jdbcType="VARCHAR" property="samplePlanCode"  javaType="java.lang.String" />
+        <result column="plan_type" jdbcType="VARCHAR" property="planType"  javaType="java.lang.String" />
+        <result column="sample_type" jdbcType="VARCHAR" property="sampleType"  javaType="java.lang.String" />
+        <result column="recheck_flag" jdbcType="VARCHAR" property="recheckFlag"  javaType="java.lang.String" />
+        <result column="before_plan_id" jdbcType="VARCHAR" property="beforePlanId"  javaType="java.lang.String" />
+        <result column="sample_address_id" jdbcType="VARCHAR" property="sampleAddressId"  javaType="java.lang.String" />
+        <result column="sample_address" jdbcType="VARCHAR" property="sampleAddress"  javaType="java.lang.String" />
+        <result column="sample_user_name" jdbcType="VARCHAR" property="sampleUserName"  javaType="java.lang.String" />
+        <result column="sample_user_id" jdbcType="VARCHAR" property="sampleUserId"  javaType="java.lang.String" />
+        <result column="sample_date" jdbcType="DATE" property="sampleDate"  javaType="java.util.Date" />
+        <result column="inspect_department" jdbcType="VARCHAR" property="inspectDepartment"  javaType="java.lang.String" />
+        <result column="receive_sample_user_name" jdbcType="VARCHAR" property="receiveSampleUserName"  javaType="java.lang.String" />
+        <result column="receive_sample_user_id" jdbcType="VARCHAR" property="receiveSampleUserId"  javaType="java.lang.String" />
+        <result column="status" jdbcType="VARCHAR" property="status"  javaType="java.lang.String" />
+        <result column="supplier_name" jdbcType="VARCHAR" property="supplierName"  javaType="java.lang.String" />
+        <result column="supplier_code" jdbcType="VARCHAR" property="supplierCode"  javaType="java.lang.String" />
+        <result column="sample_factory" jdbcType="VARCHAR" property="sampleFactory"  javaType="java.lang.String" />
+        <result column="sample_department" jdbcType="VARCHAR" property="sampleDepartment"  javaType="java.lang.String" />
+        <result column="sample_department_id" jdbcType="VARCHAR" property="sampleDepartmentId"  javaType="java.lang.String" />
+        <result column="receive_sample_user_phone" jdbcType="VARCHAR" property="receiveSampleUserPhone"  javaType="java.lang.String" />
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"  javaType="java.lang.String" />
+        <result column="create_date" jdbcType="TIMESTAMP" property="createDate"  javaType="java.util.Date" />
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"  javaType="java.lang.String" />
+        <result column="update_date" jdbcType="TIMESTAMP" property="updateDate"  javaType="java.util.Date" />
+        <result column="is_delete" jdbcType="VARCHAR" property="isDelete"  javaType="java.lang.String" />
+        <result column="data_status" jdbcType="VARCHAR" property="dataStatus"  javaType="java.lang.String" />
+    </resultMap>
+    <resultMap id="MyMap" type="com.evergrande.qms.model.QmsSamplePlan">
+        <id column="id" jdbcType="VARCHAR" property="id"  javaType="java.lang.String" />
+        <result column="sample_plan_code" jdbcType="VARCHAR" property="samplePlanCode"  javaType="java.lang.String" />
+        <result column="plan_type" jdbcType="VARCHAR" property="planType"  javaType="java.lang.String" />
+        <result column="sample_type" jdbcType="VARCHAR" property="sampleType"  javaType="java.lang.String" />
+        <result column="recheck_flag" jdbcType="VARCHAR" property="recheckFlag"  javaType="java.lang.String" />
+        <result column="before_plan_id" jdbcType="VARCHAR" property="beforePlanId"  javaType="java.lang.String" />
+        <result column="sample_address_id" jdbcType="VARCHAR" property="sampleAddressId"  javaType="java.lang.String" />
+        <result column="sample_address" jdbcType="VARCHAR" property="sampleAddress"  javaType="java.lang.String" />
+        <result column="sample_user_name" jdbcType="VARCHAR" property="sampleUserName"  javaType="java.lang.String" />
+        <result column="sample_user_id" jdbcType="VARCHAR" property="sampleUserId"  javaType="java.lang.String" />
+        <result column="sample_date" jdbcType="TIMESTAMP" property="sampleDate"  javaType="java.util.Date" />
+        <result column="inspect_department" jdbcType="VARCHAR" property="inspectDepartment"  javaType="java.lang.String" />
+        <result column="receive_sample_user_name" jdbcType="VARCHAR" property="receiveSampleUserName"  javaType="java.lang.String" />
+        <result column="receive_sample_user_id" jdbcType="VARCHAR" property="receiveSampleUserId"  javaType="java.lang.String" />
+        <result column="statusSample" jdbcType="VARCHAR" property="status"  javaType="java.lang.String" />
+        <result column="supplier_name" jdbcType="VARCHAR" property="supplierName"  javaType="java.lang.String" />
+        <result column="supplier_code" jdbcType="VARCHAR" property="supplierCode"  javaType="java.lang.String" />
+        <result column="sample_factory" jdbcType="VARCHAR" property="sampleFactory"  javaType="java.lang.String" />
+        <result column="sample_department" jdbcType="VARCHAR" property="sampleDepartment"  javaType="java.lang.String" />
+        <result column="sample_department_id" jdbcType="VARCHAR" property="sampleDepartmentId"  javaType="java.lang.String" />
+        <result column="receive_sample_user_phone" jdbcType="VARCHAR" property="receiveSampleUserPhone"  javaType="java.lang.String" />
+        <result column="create_user_one" jdbcType="VARCHAR" property="createUser"  javaType="java.lang.String" />
+        <result column="create_date_one" jdbcType="TIMESTAMP" property="createDate"  javaType="java.util.Date" />
+        <result column="update_user_one" jdbcType="VARCHAR" property="updateUser"  javaType="java.lang.String" />
+        <result column="update_date_one" jdbcType="TIMESTAMP" property="updateDate"  javaType="java.util.Date" />
+        <result column="is_delete" jdbcType="VARCHAR" property="isDelete"  javaType="java.lang.String" />
+        <result column="actual_sample_date" jdbcType="TIMESTAMP" property="actualSampleDate"  javaType="java.util.Date" />
+        <result column="actual_sample_user_id" jdbcType="VARCHAR" property="actualSampleUserId"  javaType="java.lang.String" />
+        <result column="actual_sample_user_name" jdbcType="VARCHAR" property="actualSampleUserName"  javaType="java.lang.String" />
+        <!--<result column="recheck_plan_code" jdbcType="VARCHAR" property="recheckPlanCode"  javaType="java.lang.String" />-->
+        <collection property="qmsSamplePlanDetailList" javaType="java.util.List" ofType="com.evergrande.qms.model.QmsSamplePlanDetail" column="samplePlanCode">
+            <id column="aId" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="sample_plan_code_detail" jdbcType="VARCHAR" property="samplePlanCode"  javaType="java.lang.String" />
+            <result column="row_num" property="rowNum" jdbcType="INTEGER" javaType="java.lang.Integer" />
+            <result column="material_type_code" property="materialTypeCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="material_type" property="materialType" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="material_code" property="materialCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="material_desc" property="materialDesc" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="brand" property="brand" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="duty_user_id" property="dutyUserId" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="material_standard" property="materialStandard" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="monitor_indicator_type_one" property="monitorIndicatorType" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="type" property="type" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="sample_order_number" property="sampleOrderNumber" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="plan_sample_amount" property="planSampleAmount" jdbcType="NUMERIC" javaType="java.lang.Double" />
+            <result column="plan_sample_amount_reserve" property="planSampleAmountReserve" jdbcType="NUMERIC" javaType="java.lang.Double" />
+            <result column="actual_sample_amount" property="actualSampleAmount" jdbcType="NUMERIC" javaType="java.lang.Double" />
+            <result column="actual_sample_amount_reserve" property="actualSampleAmountReserve" jdbcType="NUMERIC" javaType="java.lang.Double" />
+            <result column="recheck_flag" property="recheckFlag" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="confirm_sample_flag" property="confirmSampleFlag" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="statusDetail" property="status" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="sign_attachment_id" property="signAttachmentId" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="batch_number" property="batchNumber" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="cancel_reason" property="cancelReason" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="create_user" property="createUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="create_date" property="createDate" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+            <result column="update_user" property="updateUser" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+            <result column="inspection_report_code" property="inspectionReportCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="sample_code" property="sampleCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="sample_time" property="sampleTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+            <result column="arrival_time" property="arrivalTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+            <collection property="qmsOrderMaterialDetailBind" javaType="java.util.List" ofType="com.evergrande.qms.model.QmsOrderMaterialDetailBind" column="samplePlanDetailId">
+                <id column="cId" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+                <result column="inspection_order_id" jdbcType="VARCHAR" property="inspectionOrderId" />
+            </collection>
+        <collection property="qmsSamplePlanItemList" javaType="java.util.List" ofType="com.evergrande.qms.model.QmsSamplePlanItem" column="id">
+            <result column="bId" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="sample_plan_detail_id" property="samplePlanDetailId" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="inspection_code" property="inspectionCode" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="inspection_item" property="inspectionItem" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="standard_name" property="standardName" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="standard_num" property="standardNum" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="monitor_indicator_type" property="monitorIndicatorType" jdbcType="VARCHAR" javaType="java.lang.String" />
+            <result column="value_type" property="valueType" jdbcType="VARCHAR" javaType="java.lang.String" />
+        </collection>
+        </collection>
+    </resultMap>
+
+    <sql id="base_column_list">
+        id,sample_plan_code, plan_type,sample_type,recheck_flag,before_plan_id,sample_address_id,sample_address,sample_user_name,sample_user_id,
+        sample_date,inspect_department,receive_sample_user_name,receive_sample_user_id,status,supplier_name,supplier_code,sample_factory,sample_department_id,
+        sample_department,receive_sample_user_phone,create_user,create_date,update_user,update_date,is_delete
+    </sql>
+
+
+    <insert id="batchAdd" parameterType="java.util.List">
+        insert into qms_sample_plan(<include refid="base_column_list"/>)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id,jdbcType=VARCHAR},
+            #{item.samplePlanCode},
+            #{item.planType,jdbcType=VARCHAR},
+            #{item.sampleType,jdbcType=VARCHAR},
+            #{item.recheckFlag,jdbcType=VARCHAR},
+            #{item.beforePlanId,jdbcType=VARCHAR},
+            #{item.sampleAddressId,jdbcType=VARCHAR},
+            #{item.sampleAddress,jdbcType=VARCHAR},
+            #{item.sampleUserName,jdbcType=VARCHAR},
+            #{item.sampleUserId,jdbcType=VARCHAR},
+            #{item.sampleDate,jdbcType=TIMESTAMP},
+            #{item.inspectDepartment,jdbcType=TIMESTAMP},
+            #{item.receiveSampleUserName,jdbcType=VARCHAR},
+            #{item.receiveSampleUserId,jdbcType=VARCHAR},
+            #{item.status,jdbcType=VARCHAR},
+            #{item.supplierName,jdbcType=VARCHAR},
+            #{item.supplierCode,jdbcType=VARCHAR},
+            #{item.sampleFactory,jdbcType=VARCHAR},
+            #{item.sampleDepartmentId,jdbcType=VARCHAR},
+            #{item.sampleDepartment,jdbcType=VARCHAR},
+            #{item.receiveSampleUserPhone,jdbcType=VARCHAR},
+            #{item.createUser,jdbcType=VARCHAR},
+            #{item.createDate,jdbcType=TIMESTAMP},
+            #{item.updateUser,jdbcType=VARCHAR},
+            #{item.updateDate,jdbcType=TIMESTAMP},
+            #{item.isDelete,jdbcType=TIMESTAMP})
+
+        </foreach>
+    </insert>
+    <select id="selectSamplePlanCode" resultMap="MyMap" parameterType="java.lang.String">
+        SELECT
+        t2.id AS aId,
+        t.id,
+        t.sample_plan_code,
+        t.plan_type,
+        t.sample_type,
+        t.recheck_flag,
+        (select p.sample_plan_code from  qms_sample_plan p where p.id = t.before_plan_id) before_plan_id,
+        t.sample_address_id,
+        t.sample_address,
+        t.sample_user_id,
+        t.sample_user_name,
+        t.sample_date,
+        t.inspect_department,
+        t.receive_sample_user_name,
+        t.receive_sample_user_id,
+        t.`status` AS statusSample,
+        t.supplier_name,
+        t.supplier_code,
+        t.actual_sample_user_name,
+        t.sample_factory,
+        t.sample_department_id,
+        t.sample_department,
+        t.receive_sample_user_phone,
+        CASE t.recheck_flag
+        WHEN '1' THEN t.create_user
+        WHEN '2' THEN
+        (SELECT q.real_name FROM qms_user q WHERE q.login_name=t.create_user ) END AS create_user_one,
+        t.create_date AS create_date_one,
+        t.update_user AS update_user_one,
+        t.update_date AS update_date_one,
+        t.is_delete,
+        t.data_status,
+        t.actual_sample_date,
+        t.actual_sample_user_id,
+        t2.row_num,
+        t2.sample_plan_code AS sample_plan_code_detail ,
+        t2.material_type_code,
+        t2.material_type,
+        t2.material_code,
+        t2.material_desc,
+        t2.brand,
+        t2.duty_user_id,
+        t2.material_standard,
+        t2.monitor_indicator_type AS monitor_indicator_type_one ,
+        t2.type,
+        t2.sample_order_number,
+        t2.plan_sample_amount,
+        t2.plan_sample_amount_reserve,
+        t2.actual_sample_amount,
+        t2.actual_sample_amount_reserve,
+        t2.recheck_flag,
+        t2.confirm_sample_flag,
+        t2.`status` AS statusDetail,
+        t2.sign_attachment_id,
+        t2.batch_number,
+        t2.cancel_reason,
+        t2.create_user,
+        t2.create_date,
+        t2.update_user,
+        t2.update_date,
+        t2.inspection_report_code,
+        t2.sample_code,
+        t2.data_status,
+        t2.sample_time,
+        t2.arrival_time,
+        t3.id AS bId,
+        t3.inspection_code,
+        t3.inspection_item,
+        t3.monitor_indicator_type,
+        t3.value_type,
+        t3.standard_num,
+        t3.standard_name,
+        t4.inspection_order_id,
+        t4.id AS cId
+        FROM
+        qms_sample_plan AS t
+        LEFT JOIN qms_sample_plan_detail AS t2 ON t.sample_plan_code = t2.sample_plan_code
+        LEFT JOIN qms_sample_plan_item AS t3 ON t3.sample_plan_detail_id = t2.id
+        LEFT JOIN  qms_order_material_detail_bind AS t4 ON t2.id=t4.sample_plan_detail_id
+        where t.data_status='1' AND  (t2.data_status='1' OR t2.data_status IS NULL  ) AND t.is_delete='0' AND t.sample_plan_code=#{samplePlanCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectAll" resultMap="MyMap" parameterType="java.lang.String">
+        SELECT
+        t2.id AS aId,
+        t.sample_plan_code,
+        t.plan_type,
+        t.sample_type,
+        t.recheck_flag,
+        t.before_plan_id,
+        t.sample_address_id,
+        t.sample_address,
+        t.sample_user_id,
+        t.sample_user_name,
+        t.sample_date,
+        t.inspect_department,
+        t.receive_sample_user_name,
+        t.receive_sample_user_id,
+        t.`status` AS statusSample,
+        t.supplier_name,
+        t.supplier_code,
+        t.sample_factory,
+        t.sample_department_id,
+        t.sample_department,
+        t.receive_sample_user_phone,
+        t.create_user AS create_user_one,
+        t.create_date AS create_date_one,
+        t.update_user AS update_user_one,
+        t.update_date AS update_date_one,
+        t.is_delete,
+        t.data_status,
+        t.actual_sample_date,
+        t.actual_sample_user_id,
+        t2.row_num,
+        t2.material_type_code,
+        t2.material_type,
+        t2.material_code,
+        t2.material_desc,
+        t2.brand,
+        t2.duty_user_id,
+        t2.material_standard,
+        t2.monitor_indicator_type AS monitor_indicator_type_one ,
+        t2.type,
+        t2.sample_order_number,
+        t2.plan_sample_amount,
+        t2.plan_sample_amount_reserve,
+        t2.actual_sample_amount,
+        t2.actual_sample_amount_reserve,
+        t2.recheck_flag,
+        t2.confirm_sample_flag,
+        t2.`status` AS statusDetail,
+        t2.sign_attachment_id,
+        t2.batch_number,
+        t2.cancel_reason,
+        t2.create_user,
+        t2.create_date,
+        t2.update_user,
+        t2.update_date,
+        t2.inspection_report_code,
+        t2.sample_code,
+        t2.data_status,
+        t2.sample_time,
+        t2.arrival_time,
+        t3.id AS bId,
+        t3.inspection_code,
+        t3.inspection_item,
+        t3.monitor_indicator_type,
+        t3.standard_num,
+        t3.standard_name,
+        t3.value_type,
+        t4.inspection_order_id,
+        t4.id AS cId
+        FROM
+        qms_sample_plan AS t
+        LEFT JOIN qms_sample_plan_detail AS t2 ON t.sample_plan_code = t2.sample_plan_code
+        LEFT JOIN qms_sample_plan_item AS t3 ON t3.sample_plan_detail_id = t2.id
+        LEFT JOIN  qms_order_material_detail_bind AS t4 ON t2.id=t4.sample_plan_detail_id
+        where t.data_status='1' AND  (t2.data_status='1' OR t2.data_status IS NULL  ) AND t.is_delete='0'
+        <if test="materialType!=null and materialType!=''">
+            and material_type like concat('%', #{materialType,jdbcType=VARCHAR},'%')
+        </if>
+
+
+        order by create_date DESC
+    </select>
+
+    <select id="findAllList" resultMap="BaseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_sample_plan
+        where is_delete='0' AND data_status='1'
+        <!--<where>-->
+            <if test="planType!=null and planType!=''">
+                and plan_type like concat('%', #{planType,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="samplePlanCode!=null and samplePlanCode!=''">
+                and sample_plan_code like concat('%', #{samplePlanCode,jdbcType=VARCHAR},'%')
+            </if>
+
+            <if test="sampleType!=null and sampleType!=''">
+                and sample_type like concat('%',#{sampleType,jdbcType=VARCHAR},'%')
+            </if>
+
+            <if test="status!=null and status!=''">
+                and status like concat (#{status,jdbcType=VARCHAR})
+            </if>
+
+            <if test="sampleAddress!=null and sampleAddress!=''">
+                and sample_address like concat ('%',#{sampleAddress,jdbcType=VARCHAR},'%')
+            </if>
+
+            <if test="sampleUserName != null and sampleUserName != ''">
+                and sample_user_name like concat ('%',#{sampleUserName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="receiveSampleUserName != null and receiveSampleUserName != ''">
+                and receive_sample_user_name like concat ('%',#{receiveSampleUserName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and DATE_FORMAT(sample_date,'%Y-%m-%d') &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                and DATE_FORMAT(sample_date,'%Y-%m-%d') &lt;= #{endDate}
+            </if>
+            <if test="sampleUserId != null and sampleUserId != '' ">
+                and (sample_user_id = #{sampleUserId,jdbcType=VARCHAR}
+                or receive_sample_user_id = #{sampleUserId,jdbcType=VARCHAR}
+                or create_user = #{sampleUserId,jdbcType=VARCHAR})
+            </if>
+
+
+        <!--</where>-->
+        order by sample_plan_code DESC
+    </select>
+
+    <insert id="add" parameterType="com.evergrande.qms.model.QmsSamplePlan" >
+        insert into qms_sample_plan (id,sample_plan_code, plan_type,sample_type,recheck_flag,before_plan_id,sample_address_id,sample_address,sample_user_name,sample_user_id,sample_date,inspect_department,receive_sample_user_name,receive_sample_user_id,status,supplier_name,supplier_code,sample_factory,sample_department,sample_department_id,receive_sample_user_phone,create_user,create_date,update_user,update_date
+        <if test="actualSampleDate != null" >
+            ,actual_sample_date
+        </if>
+        <if test="actualSampleUserName != null and actualSampleUserName != ''" >
+            ,actual_sample_user_name
+        </if>
+        <if test="actualSampleUserId != null and actualSampleUserId != ''" >
+            ,actual_sample_user_id
+        </if>
+        <if test="dataStatus != null" >
+            ,data_status
+        </if>
+        )
+        values
+        (#{id,jdbcType=VARCHAR}, #{samplePlanCode}, #{planType,jdbcType=VARCHAR},#{sampleType,jdbcType=VARCHAR}, #{recheckFlag,jdbcType=VARCHAR}, #{beforePlanId,jdbcType=VARCHAR},#{sampleAddressId,jdbcType=VARCHAR},#{sampleAddress,jdbcType=VARCHAR},#{sampleUserName,jdbcType=VARCHAR},#{sampleUserId,jdbcType=VARCHAR},#{sampleDate,jdbcType=TIMESTAMP},#{inspectDepartment,jdbcType=TIMESTAMP},#{receiveSampleUserName,jdbcType=VARCHAR},#{receiveSampleUserId,jdbcType=VARCHAR},#{status,jdbcType=VARCHAR},#{supplierName,jdbcType=VARCHAR},#{supplierCode,jdbcType=VARCHAR},#{sampleFactory,jdbcType=VARCHAR},#{sampleDepartment,jdbcType=VARCHAR},#{sampleDepartmentId,jdbcType=VARCHAR},#{receiveSampleUserPhone,jdbcType=VARCHAR},#{createUser,jdbcType=VARCHAR},#{createDate,jdbcType=TIMESTAMP},#{updateUser,jdbcType=VARCHAR},#{updateDate,jdbcType=TIMESTAMP}
+        <if test="actualSampleDate != null" >
+            ,#{actualSampleDate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="actualSampleUserName != null and actualSampleUserName != ''" >
+            ,#{actualSampleUserName,jdbcType=VARCHAR}
+        </if>
+        <if test="actualSampleUserId != null and actualSampleUserId != ''" >
+            ,#{actualSampleUserId,jdbcType=VARCHAR}
+        </if>
+        <if test="dataStatus != null" >
+            ,#{dataStatus,jdbcType=VARCHAR}
+        </if>
+        )
+    </insert>
+
+    <delete id="deleteSamplePlan" parameterType="java.lang.String" >
+        delete from qms_sample_plan
+        where id = #{id,jdbcType=VARCHAR}
+    </delete>
+
+    <update id="updateSamplePlanStatus" parameterType="java.util.List">
+        <foreach  collection="list"  item="item" open="" close="" separator=";">
+            update qms_sample_plan
+            set
+            status=#{item.status,jdbcType=VARCHAR}
+            where
+            id=#{item.id,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+
+    <update id="updateSamplePlan" parameterType="java.util.List" >
+        <foreach  collection="list"  item="item" open="" close="" separator=";">
+        update qms_sample_plan
+            set
+            update_user=#{item.updateUser,jdbcType=VARCHAR},
+            update_date=#{item.updateDate,jdbcType=TIMESTAMP},
+            is_delete=#{item.isDelete,jdbcType=VARCHAR}
+            where
+            id =#{item.id,jdbcType=VARCHAR}
+        </foreach>
+    </update>
+
+
+    <update id="updatePlan" >
+        update
+            qms_sample_plan
+        set
+            sample_plan_code=#{samplePlanCode,jdbcType=VARCHAR},
+            plan_type=#{planType,jdbcType=VARCHAR},
+            status=#{status,jdbcType=VARCHAR},
+            receive_sample_user_name=#{receiveSampleUserName,jdbcType=VARCHAR},
+            receive_sample_user_id=#{receiveSampleUserId,jdbcType=VARCHAR},
+            receive_sample_user_phone=#{receiveSampleUserPhone,jdbcType=VARCHAR},
+            sample_type=#{sampleType,jdbcType=VARCHAR},
+            sample_address=#{sampleAddress,jdbcType=VARCHAR},
+            sample_address_id=#{sampleAddressId,jdbcType=VARCHAR},
+            sample_user_id=#{sampleUserId,jdbcType=VARCHAR},
+            sample_date=#{sampleDate,jdbcType=TIMESTAMP},
+            sample_user_name=#{sampleUserName,jdbcType=VARCHAR},
+            inspect_department=#{inspectDepartment,jdbcType=VARCHAR},
+            sample_department_id=#{sampleDepartmentId,jdbcType=VARCHAR},
+            sample_department=#{sampleDepartment,jdbcType=VARCHAR},
+            update_user=#{updateUser,jdbcType=VARCHAR},
+            supplier_name=#{supplierName,jdbcType=VARCHAR},
+            supplier_code=#{supplierCode,jdbcType=VARCHAR}
+        where sample_plan_code = #{samplePlanCode,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateById">
+        update
+            qms_sample_plan p
+        set
+            p.actual_sample_date = #{actualSampleDate,jdbcType=DATE} ,
+            p.actual_sample_user_id = #{actualSampleUserId,jdbcType=VARCHAR},
+            p.actual_sample_user_name = #{actualSampleUserName,jdbcType=VARCHAR},
+            p.status = #{status,jdbcType=VARCHAR}
+        where p.id = #{id,jdbcType=VARCHAR}
+    </update>
+
+
+    <resultMap id="ResultMap" type="com.evergrande.qms.model.QmsSamplePlan">
+        <id column="id" jdbcType="VARCHAR" property="id"  javaType="java.lang.String" />
+        <result column="sample_plan_code" jdbcType="VARCHAR" property="samplePlanCode"  javaType="java.lang.String" />
+        <result column="plan_type" jdbcType="VARCHAR" property="planType"  javaType="java.lang.String" />
+        <result column="sample_type" jdbcType="VARCHAR" property="sampleType"  javaType="java.lang.String" />
+        <result column="recheck_flag" jdbcType="VARCHAR" property="recheckFlag"  javaType="java.lang.String" />
+        <result column="before_plan_id" jdbcType="VARCHAR" property="beforePlanId"  javaType="java.lang.String" />
+        <result column="sample_address_id" jdbcType="VARCHAR" property="sampleAddressId"  javaType="java.lang.String" />
+        <result column="sample_address" jdbcType="VARCHAR" property="sampleAddress"  javaType="java.lang.String" />
+        <result column="sample_user_name" jdbcType="VARCHAR" property="sampleUserName"  javaType="java.lang.String" />
+        <result column="sample_user_id" jdbcType="VARCHAR" property="sampleUserId"  javaType="java.lang.String" />
+        <result column="sample_date`" jdbcType="TIMESTAMP" property="sampleDate"  javaType="java.util.Date" />
+        <result column="inspect_department" jdbcType="VARCHAR" property="inspectDepartment"  javaType="java.lang.String" />
+        <result column="receive_sample_user_name" jdbcType="VARCHAR" property="receiveSampleUserName"  javaType="java.lang.String" />
+        <result column="status" jdbcType="VARCHAR" property="status"  javaType="java.lang.String" />
+        <result column="supplier_name" jdbcType="VARCHAR" property="supplierName"  javaType="java.lang.String" />
+        <result column="supplier_code" jdbcType="VARCHAR" property="supplierCode"  javaType="java.lang.String" />
+        <result column="sample_factory" jdbcType="VARCHAR" property="sampleFactory"  javaType="java.lang.String" />
+        <result column="sample_department" jdbcType="VARCHAR" property="sampleDepartment"  javaType="java.lang.String" />
+        <result column="sample_department_id" jdbcType="VARCHAR" property="sampleDepartmentId"  javaType="java.lang.String" />
+        <result column="receive_sample_user_phone" jdbcType="VARCHAR" property="receiveSampleUserPhone"  javaType="java.lang.String" />
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"  javaType="java.lang.String" />
+        <result column="create_date" jdbcType="TIMESTAMP" property="createDate"  javaType="java.util.Date" />
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"  javaType="java.lang.String" />
+        <result column="update_date" jdbcType="TIMESTAMP" property="updateDate"  javaType="java.util.Date" />
+        <result column="is_delete" jdbcType="VARCHAR" property="isDelete"  javaType="java.lang.String" />
+        <collection property="qmsSamplePlanDetailList" ofType="com.evergrande.qms.model.QmsSamplePlanDetail"
+                    select="getQmsSamplePlanDetail" column="sample_plan_code">
+            <id column="id" property="id" jdbcType="VARCHAR" javaType="java.lang.String" />
+        </collection>
+    </resultMap>
+
+    <select id="getPageList" resultMap="ResultMap">
+        SELECT
+            s.id,
+            s.sample_plan_code,
+            s.plan_type,
+            s.sample_type,
+            s.recheck_flag,
+            s.before_plan_id,
+            s.sample_address,
+            s.sample_user_id,
+            s.sample_user_name,
+            s.sample_date,
+            s.inspect_department,
+            s.receive_sample_user_name,
+            s.`status`,
+            s.supplier_name,
+            s.supplier_code,
+            s.sample_factory,
+            s.sample_department_id,
+            s.sample_department,
+            s.receive_sample_user_phone,
+            s.create_user,
+            s.create_date,
+            s.update_user,
+            s.update_date,
+            s.is_delete,
+            <!--s.recheck_plan_code-->
+        FROM
+            qms_sample_plan AS s
+        where s.is_delete = 0
+            and s.sample_plan_code = 'JH2018080131'
+            <if test="status == null or status == ''">
+                and s.status > 3
+            </if>
+            <if test="status == 1">
+                and s.status = 4
+            </if>
+            <if test="status == 2">
+                and s.status > 4
+            </if>
+            <if test="sampleType == 1">
+                and s.sample_type = 1
+            </if>
+            <if test="sampleType == 2">
+                and s.sample_type = 2
+            </if>
+            <if test="startDate != null and endDate != null">
+                and s.sample_date >= #{startDate} and s.sample_date &lt;= #{endDate}
+            </if>
+            <if test="startDate != null and endDate == null">
+                and s.sample_date >= #{startDate}
+            </if>
+            <if test="startDate == null and endDate != null">
+               and s.sample_date &lt;= #{endDate}
+            </if>
+    </select>
+
+    <select id="getQmsSamplePlanDetail" parameterType="string" resultType="com.evergrande.qms.model.QmsSamplePlanDetail">
+        SELECT
+            d.id,
+            d.sample_plan_code as samplePlanCode,
+            d.row_num as rowNum,
+            d.material_type as materialType,
+            d.material_code as materialCode,
+            d.material_desc as materialDesc,
+            d.brand,
+            d.duty_user_id as dutyUserId,
+            d.material_standard as materialStandard,
+            d.type,
+            d.sample_order_number as sampleOrderNumber,
+            d.plan_sample_amount as planSampleAmount,
+            d.plan_sample_amount_reserve as planSampleAmountReserve,
+            d.actual_sample_amount as actualSampleAmount,
+            d.actual_sample_amount_reserve as actualSampleAmountReserve,
+            d.recheck_flag as recheckFlag,
+            d.confirm_sample_flag as confirmSampleFlag,
+            d.`status`,
+            d.sign_attachment_id as signAttachmentId,
+            d.batch_number as batchNumber,
+            d.cancel_reason as cancelReason,
+            d.create_user as createUser,
+            d.create_date as createDate,
+            d.update_user as updateUser,
+            d.update_date as updateDate,
+            d.inspection_report_code as inspectionReportCode,
+            d.sample_code as sampleCode
+        FROM
+            qms_sample_plan_detail AS d
+        where d.sample_plan_code = #{samplePlanCode, jdbcType=VARCHAR}
+    </select>
+    <!-- 审批需要的数据查询-->
+    <select id="queryUnqualified" resultType="java.util.Map">
+        SELECT
+            r.sample_plan_code,#计划编号
+            d.row_num,#计划行号
+            d.material_code,#物料编码
+            d.material_desc,#物料名称
+            d.material_type,#材料类别
+            s.supplier_code,#供应商编码
+            ( SELECT t.supplier_name FROM qms_supplier t WHERE t.supplier_code = s.supplier_code ) AS supplier_name,#供应商名称
+            d.brand,#品牌
+            s.sample_address,#抽样地点
+            s.sample_date,#抽样时间
+            ( SELECT ii.institute_name FROM qms_inspection_institute ii WHERE ii.institute_code = i.inspection_organization ) AS institute_name,#检测院名称
+            r.update_date,#报告出具时间
+            d.inspection_report_code,#报告编号
+            r.create_user,#创建人
+            r.create_date,#创建时间
+            d.recheck_flag,#是否属于复检
+            s.sample_type,#问题来源
+            d.id AS detail_id,
+            d.determine_reason,
+            d.duty_user_id
+        FROM
+            qms_inspection_result r,
+            qms_sample_plan_detail d,
+            qms_sample_plan s,
+            qms_order_material_detail_bind db,
+            qms_inspection_order i,
+            qms_inspection_order_item t
+        WHERE
+            r.sample_plan_code = d.sample_plan_code
+            AND r.sample_plan_code = s.sample_plan_code
+            AND d.id = db.sample_plan_detail_id
+            AND db.inspection_order_id = i.id
+            AND r.sample_plan_code = t.sample_plan_code
+            AND t.sample_plan_code = r.sample_plan_code
+            AND t.sample_plan_detail_id = d.id
+            AND s.data_status = '1'
+            AND d.data_status = '1'
+            AND t.inspection_evaluate = '2'
+            AND t.sample_plan_code = #{samplePlanCode}
+            AND d.material_code = #{materialCode}
+        ORDER BY update_date desc
+        limit 1
+    </select>
+    <!--pc首页根据loginName返回 抽样计划 author:wangyu-->
+    <select id="findIndexPage" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT id, sample_plan_code, recheck_flag, sample_address, sample_user_name, sample_date,
+        status FROM qms_sample_plan
+        WHERE status IN (5,6,7)
+        <if test="loginName != null and loginName != ''">
+            and receive_sample_user_id = #{loginName, jdbcType=VARCHAR}
+        </if>
+        ORDER BY sample_date DESC LIMIT 5
+    </select>
+
+    <select id="findExportCount" resultType="java.lang.Integer" parameterType="com.evergrande.qms.vo.QmsSampleplanVO">
+        SELECT
+        COUNT(*)
+        FROM
+        qms_sample_plan AS t
+        where is_delete='0' AND data_status='1'
+        <!--<where>-->
+        <if test="planType!=null and planType!=''">
+            and plan_type like concat('%', #{planType,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="samplePlanCode!=null and samplePlanCode!=''">
+            and sample_plan_code like concat('%', #{samplePlanCode,jdbcType=VARCHAR},'%')
+        </if>
+
+        <if test="sampleType!=null and sampleType!=''">
+            and sample_type like concat('%',#{sampleType,jdbcType=VARCHAR},'%')
+        </if>
+
+        <if test="status!=null and status!=''">
+            and status like concat (#{status,jdbcType=VARCHAR})
+        </if>
+
+        <if test="sampleAddress!=null and sampleAddress!=''">
+            and sample_address like concat ('%',#{sampleAddress,jdbcType=VARCHAR},'%')
+        </if>
+
+        <if test="sampleUserName != null and sampleUserName != ''">
+            and sample_user_name like concat ('%',#{sampleUserName,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="receiveSampleUserName != null and receiveSampleUserName != ''">
+            and receive_sample_user_name like concat ('%',#{receiveSampleUserName,jdbcType=VARCHAR},'%')
+        </if>
+
+        <if test="samplePlanCodeList != null and samplePlanCodeList.size > 0" >
+            and t.sample_plan_code IN
+            <foreach collection="samplePlanCodeList" item="item" index="index" separator="," close=")" open="(">
+                #{item,jdbcType=VARCHAR}
+            </foreach>
+        </if>
+        <if test="startDate != null and startDate != ''">
+            and DATE_FORMAT(sample_date,'%Y-%m-%d') &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            and DATE_FORMAT(sample_date,'%Y-%m-%d') &lt;= #{endDate}
+        </if>
+
+        <!--</where>-->
+
+
+    </select>
+
+
+    <!-- 查询导出的数据 -->
+    <select id="findExportData" resultMap="BaseResultMap" parameterType="com.evergrande.qms.vo.QmsSampleplanVO">
+        SELECT
+        t.id,
+        t.sample_plan_code,
+        t.plan_type,
+        t.sample_type,
+        t.recheck_flag,
+        t.before_plan_id,
+        t.sample_address_id,
+        t.sample_address,
+        t.sample_user_id,
+        t.sample_user_name,
+        t.sample_date,
+        t.inspect_department,
+        t.receive_sample_user_id,
+        t.receive_sample_user_name,
+        t.`status`,
+        t.supplier_code,
+        t.sample_factory,
+        t.sample_department_id,
+        t.sample_department,
+        t.receive_sample_user_phone,
+        t.create_user,
+        t.create_date,
+        t.update_user,
+        t.update_date,
+        t.is_delete,
+        t.actual_sample_date,
+        t.actual_sample_user_id
+        FROM
+        qms_sample_plan AS t
+        where is_delete='0' AND data_status='1'
+     <!--<where>-->
+         <if test="planType!=null and planType!=''">
+             and plan_type like concat('%', #{planType,jdbcType=VARCHAR},'%')
+         </if>
+         <if test="samplePlanCode!=null and samplePlanCode!=''">
+             and sample_plan_code like concat('%', #{samplePlanCode,jdbcType=VARCHAR},'%')
+         </if>
+
+         <if test="sampleType!=null and sampleType!=''">
+             and sample_type like concat('%',#{sampleType,jdbcType=VARCHAR},'%')
+         </if>
+
+         <if test="status!=null and status!=''">
+             and status like concat (#{status,jdbcType=VARCHAR})
+         </if>
+
+         <if test="sampleAddress!=null and sampleAddress!=''">
+             and sample_address like concat ('%',#{sampleAddress,jdbcType=VARCHAR},'%')
+         </if>
+
+         <if test="sampleUserName != null and sampleUserName != ''">
+             and sample_user_name like concat ('%',#{sampleUserName,jdbcType=VARCHAR},'%')
+         </if>
+         <if test="receiveSampleUserName != null and receiveSampleUserName != ''">
+             and receive_sample_user_name like concat ('%',#{receiveSampleUserName,jdbcType=VARCHAR},'%')
+         </if>
+
+         <if test="samplePlanCodeList != null and samplePlanCodeList.size > 0" >
+             and t.sample_plan_code IN
+             <foreach collection="samplePlanCodeList" item="item" index="index" separator="," close=")" open="(">
+                 #{item,jdbcType=VARCHAR}
+             </foreach>
+         </if>
+        <if test="startDate != null and startDate != ''">
+            and DATE_FORMAT(sample_date,'%Y-%m-%d') &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            and DATE_FORMAT(sample_date,'%Y-%m-%d') &lt;= #{endDate}
+        </if>
+
+     <!--</where>-->
+
+
+    </select>
+
+    <select id="getSampleUserId" resultType="java.lang.String">
+        SELECT
+            q.actual_sample_user_id
+        FROM
+            qms_sample_plan q
+            INNER JOIN qms_app_user_project_auth u ON q.sample_address = u.wbs_num
+        WHERE
+            q.sample_user_id in
+        <foreach collection="list" index="index" item="user" separator="," open="(" close=")">
+            #{user,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        select
+        <include refid="base_column_list"/>
+         from qms_sample_plan where id = #{id} and data_status = 1
+    </select>
+
+    <select id="selectByCode" resultMap="BaseResultMap">
+        select
+        <include refid="base_column_list"/>
+        from qms_sample_plan where sample_plan_code = #{id} and data_status = 1
+    </select>
+
+</mapper>

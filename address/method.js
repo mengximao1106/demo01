@@ -31,11 +31,13 @@ var current = {
  
 /*根据所选的省份来显示城市列表*/
 function showCity(obj) {
+	city.innerHTML="<option>=请选择城市=</option>";
+	country.innerHTML="<option>=请选择县区=</option>";
     var val = obj.options[obj.selectedIndex].value;
     if (val != current.prov) {
         current.prov = val;
         addrShow.value = '';
-        btn.disabled = true;
+        //btn.disabled = true;
     }
     //console.log(val);
     if (val != null) {
